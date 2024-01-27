@@ -21,6 +21,10 @@ type Partner struct {
 	Code             string `gorm:"uniqueIndex; not null; size:5;"`
 }
 
+func (partner *Partner) TableName() string {
+	return computeTableName("partner")
+}
+
 func (partner *Partner) GetSequence() string {
 	return "partner_sequence"
 }

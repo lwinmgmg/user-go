@@ -25,6 +25,10 @@ type User struct {
 	IsAuthenticator bool    `gorm:"default:false;"`
 }
 
+func (user *User) TableName() string {
+	return computeTableName("user")
+}
+
 func (user *User) GetSequence() string {
 	return "user_sequence"
 }
