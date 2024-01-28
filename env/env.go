@@ -28,11 +28,20 @@ type DbServer struct {
 	TablePrefix string `yaml:"table_prefix"`
 }
 
+type EmailServer struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Email    string `yaml:"email"`
+	Password string `yaml:"password"`
+	Enable   bool   `yaml:"enable"`
+}
+
 type Settings struct {
-	HttpServer Server      `yaml:"http_server"`
-	GrpcServer Server      `yaml:"grpc_server"`
-	Db         DbServer    `yaml:"db"`
-	Redis      RedisServer `yaml:"redis"`
+	HttpServer       Server      `yaml:"http_server"`
+	GrpcServer       Server      `yaml:"grpc_server"`
+	Db               DbServer    `yaml:"db"`
+	Redis            RedisServer `yaml:"redis"`
+	LoginEmailServer EmailServer `yaml:"login_mail_server"`
 }
 
 func LoadSettings() (Settings, error) {

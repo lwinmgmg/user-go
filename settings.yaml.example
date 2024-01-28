@@ -24,3 +24,9 @@ redis:
   user: default
   password: example
   db: 0
+login_mail_server:
+  host: smtp.gmail.com
+  port: 587
+  email: testing@gmail.com
+  password: testing
+  enable: false
