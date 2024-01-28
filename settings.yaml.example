@@ -11,3 +11,9 @@ db:
   password: admin
   db_name: user_go
   table_prefix: user
+redis:
+  host: 0.0.0.0
+  port: 6379
+  user: default
+  password: example
+  db: 0
