@@ -37,6 +37,7 @@ type EmailServer struct {
 }
 
 type Settings struct {
+	Service          string      `yaml:"service"`
 	HttpServer       Server      `yaml:"http_server"`
 	GrpcServer       Server      `yaml:"grpc_server"`
 	Db               DbServer    `yaml:"db"`

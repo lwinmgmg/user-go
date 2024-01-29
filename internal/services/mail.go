@@ -26,7 +26,7 @@ func (sender *MailService) getAuth() smtp.Auth {
 
 func (sender *MailService) Send(message string, recipient []string) error {
 	if !sender.Enable {
-		slog.Warn("Email server is not enable")
+		slog.Warn(fmt.Sprintf("Email server is not enable : To -> %v; Message -> %v", recipient, message))
 		return nil
 	}
 	err := smtp.SendMail(fmt.Sprintf("%v:%v", sender.Host, sender.Port), sender.getAuth(), sender.senderMail, recipient, []byte(message))

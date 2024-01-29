@@ -1,3 +1,4 @@
+service: LMM user service
 http_server:
   host: localhost
   port: 3001

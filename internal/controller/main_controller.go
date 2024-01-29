@@ -14,6 +14,7 @@ type Controller struct {
 	RoDb      *gorm.DB
 	RedisCtrl *redisctrl.RedisCtrl
 	LoginMail *services.MailService
+	Otp       *services.OtpService
 }
 
 func NewContoller(db, roDb *gorm.DB, rd *redis.Client) *Controller {

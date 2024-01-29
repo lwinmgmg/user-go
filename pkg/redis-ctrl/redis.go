@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/lwinmgmg/user-go/pkg/maths"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -11,17 +12,9 @@ const (
 	REDIS_DEFAULT_TIMEOUT time.Duration = time.Second
 )
 
-func sum[T int | time.Duration | float64](data []T) T {
-	var result T
-	for _, v := range data {
-		result = result + v
-	}
-	return result
-}
-
 func getContext(defaultTimeout time.Duration, timeout ...time.Duration) (context.Context, context.CancelFunc) {
 	if timeout != nil {
-		defaultTimeout = sum(timeout)
+		defaultTimeout = maths.Sum(timeout)
 	}
 	return context.WithTimeout(
 		context.Background(),
@@ -64,7 +57,7 @@ func (rdCtrl *RedisCtrl) DelKey(keys []string, timeout ...time.Duration) error {
 func NewRedisCtrl(client *redis.Client, timeout ...time.Duration) *RedisCtrl {
 	defaultTimeout := REDIS_DEFAULT_TIMEOUT
 	if timeout != nil {
-		defaultTimeout = sum(timeout)
+		defaultTimeout = maths.Sum(timeout)
 	}
 	return &RedisCtrl{
 		Client:         client,
