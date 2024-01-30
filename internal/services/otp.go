@@ -27,7 +27,7 @@ func FormatOtpKey(otpUrl, code string, optType OtpConfirmType) string {
 }
 
 type OtpService struct {
-	otpctrl.OtpCtrl
+	*otpctrl.OtpCtrl
 	Period time.Duration
 	Skew   uint
 }
@@ -38,4 +38,12 @@ func (otpService *OtpService) Validate(passCode, url string) bool {
 
 func (otpService *OtpService) GenerateCode(url string) (string, error) {
 	return otpService.OtpCtrl.GenerateCode(url, otpctrl.STANDARD_OPT_DURATION, time.Now().UTC(), otpService.Skew)
+}
+
+func NewOtpService(otpCtrl *otpctrl.OtpCtrl, period time.Duration, skew uint) *OtpService {
+	return &OtpService{
+		OtpCtrl: otpCtrl,
+		Period:  period,
+		Skew:    skew,
+	}
 }

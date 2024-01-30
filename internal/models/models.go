@@ -6,6 +6,7 @@ import (
 
 	"github.com/lwinmgmg/user-go/env"
 	uuid_code "github.com/lwinmgmg/uuid_code/v1"
+	"gorm.io/gorm"
 )
 
 var (
@@ -34,4 +35,11 @@ type DefaultModel struct {
 	ID         uint      `gorm:"primaryKey"`
 	CreateDate time.Time `gorm:"autoCreateTime:nano"`
 	WriteDate  time.Time `gorm:"autoUpdateTime:nano"`
+}
+
+func InitDb(db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(
+		&User{},
+		&Partner{},
+	)
 }

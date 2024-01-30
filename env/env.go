@@ -36,13 +36,20 @@ type EmailServer struct {
 	Enable   bool   `yaml:"enable"`
 }
 
+type OtpService struct {
+	Issuer string `yaml:"name"`
+	Skew   uint   `yaml:"skew"`
+}
+
 type Settings struct {
 	Service          string      `yaml:"service"`
 	HttpServer       Server      `yaml:"http_server"`
 	GrpcServer       Server      `yaml:"grpc_server"`
 	Db               DbServer    `yaml:"db"`
+	RoDb             DbServer    `yaml:"ro_db"`
 	Redis            RedisServer `yaml:"redis"`
 	LoginEmailServer EmailServer `yaml:"login_mail_server"`
+	OtpService       OtpService  `yaml:"otp"`
 }
 
 func LoadSettings() (Settings, error) {
