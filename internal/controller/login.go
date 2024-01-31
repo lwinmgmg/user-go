@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/lwinmgmg/user-go/internal/models"
@@ -23,7 +24,7 @@ func (ctrl *Controller) Login(username, password string, user *models.User) erro
 	}
 	tknExpTime := 5 * time.Minute
 	otpVal := services.FormatOtpKey(user.OtpUrl, user.Code, services.OtpLogin)
-	if err := ctrl.RedisCtrl.SetKey(string(uuid4), otpVal, tknExpTime); err != nil {
+	if err := ctrl.RedisCtrl.SetKey(fmt.Sprintf("otp:%v", uuid4), otpVal, tknExpTime); err != nil {
 		return err
 	}
 	// No need to send email for Authenticator User

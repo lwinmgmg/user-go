@@ -10,12 +10,16 @@ import (
 var ErrUserExist = errors.New("user_exist")
 
 type UserSignUpData struct {
-	FirstName string `json:"first_name"`
+	FirstName string `json:"first_name" binding:"required,min=3"`
 	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	Phone     string `json:"phone"`
-	UserName  string `json:"username"`
+	Email     string `json:"email" binding:"required,email"`
+	Phone     string `json:"phone" binding:"required"`
+	UserName  string `json:"username" binding:"required,min=3"`
 	Password  string `json:"password"`
+}
+
+func (data *UserSignUpData) Validate() error {
+	return nil
 }
 
 func (ctrl *Controller) Signup(userData *UserSignUpData) error {

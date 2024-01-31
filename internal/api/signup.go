@@ -6,18 +6,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lwinmgmg/user-go/internal/controller"
 	"github.com/lwinmgmg/user-go/pkg/middlewares"
-	"gorm.io/gorm"
 )
 
 func (apiCtrl *ApiCtrl) Signup(ctx *gin.Context) {
-	if err := apiCtrl.Controller.Signup(&controller.UserSignUpData{}); err != nil {
+	data := &controller.UserSignUpData{}
+	if err := ctx.ShouldBindJSON(data); err != nil {
+		panic(middlewares.NewPanic(http.StatusUnprocessableEntity, 1, "Wrong data format", err))
+	}
+	if err := data.Validate(); err != nil {
+		panic(middlewares.NewPanic(http.StatusUnprocessableEntity, 2, "Invalid data format", err))
+	}
+	if err := apiCtrl.Controller.Signup(data); err != nil {
 		switch err {
-		case gorm.ErrRecordNotFound:
-			panic(middlewares.NewPanic(http.StatusBadRequest, 1, "Failed to signup", err))
 		case controller.ErrUserExist:
-			panic(middlewares.NewPanic(http.StatusBadRequest, 1, "Failed to signup", err))
+			panic(middlewares.NewPanic(http.StatusBadRequest, 4, "User already exist", err))
 		}
-		panic(middlewares.NewPanic(http.StatusBadRequest, 1, "Failed to signup", err))
+		panic(middlewares.NewPanic(http.StatusBadRequest, 0, "Failed to signup", err))
 	}
 	ctx.JSON(http.StatusOK, middlewares.DefResp{
 		Code:    1,

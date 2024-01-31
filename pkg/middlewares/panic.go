@@ -3,6 +3,7 @@ package middlewares
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +23,10 @@ type PanicResponse struct {
 func RecoveryMiddleware(ctx *gin.Context, err any) {
 	switch err := err.(type) {
 	case PanicResponse:
+		val, _ := os.LookupEnv("GIN_MODE")
+		if val != "release" && err.Error != nil {
+			err.Response.Data["error"] = err.Error.Error()
+		}
 		ctx.AbortWithStatusJSON(err.HttpStatus, err.Response)
 		return
 	default:

@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/lwinmgmg/user-go/env"
@@ -38,8 +39,15 @@ type DefaultModel struct {
 }
 
 func InitDb(db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
-		&User{},
-		&Partner{},
-	)
+	user := &User{}
+	partner := &Partner{}
+	if err := db.Migrator().AutoMigrate(
+		user,
+		partner,
+	); err != nil {
+		return err
+	}
+	db.Exec(fmt.Sprintf("CREATE SEQUENCE IF NOT EXISTS %v;", partner.GetSequence()))
+	db.Exec(fmt.Sprintf("CREATE SEQUENCE IF NOT EXISTS %v START WITH 100000;", user.GetSequence()))
+	return nil
 }

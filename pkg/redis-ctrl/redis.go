@@ -30,27 +30,46 @@ type RedisCtrl struct {
 func (rdCtrl *RedisCtrl) GetKey(key string, timeout ...time.Duration) (string, error) {
 	ctx, cancel := getContext(rdCtrl.DefaultTimeout, timeout...)
 	defer cancel()
-	res, err := rdCtrl.Get(ctx, key).Result()
-	if err != nil {
-		return "", err
-	}
-	return res, nil
+	return rdCtrl.Get(ctx, key).Result()
+}
+
+func (rdCtrl *RedisCtrl) GetHKey(key, field string, timeout ...time.Duration) (string, error) {
+	ctx, cancel := getContext(rdCtrl.DefaultTimeout, timeout...)
+	defer cancel()
+	return rdCtrl.HGet(ctx, key, field).Result()
+}
+
+func (rdCtrl *RedisCtrl) GetHKeyAll(key, field string, timeout ...time.Duration) (map[string]string, error) {
+	ctx, cancel := getContext(rdCtrl.DefaultTimeout, timeout...)
+	defer cancel()
+	return rdCtrl.HGetAll(ctx, key).Result()
 }
 
 func (rdCtrl *RedisCtrl) SetKey(key, val string, duration time.Duration, timeout ...time.Duration) error {
 	ctx, cancel := getContext(rdCtrl.DefaultTimeout, timeout...)
 	defer cancel()
 	_, err := rdCtrl.Set(ctx, key, val, duration).Result()
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
+}
+
+func (rdCtrl *RedisCtrl) SetHKey(key string, val any, timeout ...time.Duration) error {
+	ctx, cancel := getContext(rdCtrl.DefaultTimeout, timeout...)
+	defer cancel()
+	_, err := rdCtrl.HSet(ctx, key, val).Result()
+	return err
 }
 
 func (rdCtrl *RedisCtrl) DelKey(keys []string, timeout ...time.Duration) error {
 	ctx, cancel := getContext(rdCtrl.DefaultTimeout, timeout...)
 	defer cancel()
 	_, err := rdCtrl.Del(ctx, keys...).Result()
+	return err
+}
+
+func (rdCtrl *RedisCtrl) DelHKey(keys string, fields []string, timeout ...time.Duration) error {
+	ctx, cancel := getContext(rdCtrl.DefaultTimeout, timeout...)
+	defer cancel()
+	_, err := rdCtrl.HDel(ctx, keys, fields...).Result()
 	return err
 }
 
