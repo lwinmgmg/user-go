@@ -41,6 +41,10 @@ type OtpService struct {
 	Skew   uint   `yaml:"skew"`
 }
 
+type JwtService struct {
+	Key string `yaml:"key"`
+}
+
 type Settings struct {
 	Service          string      `yaml:"service"`
 	HttpServer       Server      `yaml:"http_server"`
@@ -50,6 +54,7 @@ type Settings struct {
 	Redis            RedisServer `yaml:"redis"`
 	LoginEmailServer EmailServer `yaml:"login_mail_server"`
 	OtpService       OtpService  `yaml:"otp"`
+	JwtService       JwtService  `yaml:"jwt"`
 }
 
 func LoadSettings() (Settings, error) {

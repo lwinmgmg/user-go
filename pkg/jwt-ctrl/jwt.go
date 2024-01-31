@@ -1,22 +1,33 @@
 package jwtctrl
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type Subject struct {
+	ClientID  string `json:"cid"`
+	UserID    string `json:"uid"`
+	Reference string `json:"ref"`
+}
+
 type JwtCtrl struct {
 	Issuer string
 }
 
-func (jwtCtrl *JwtCtrl) GenerateCode(subject string, key string, duration time.Duration, audiences ...string) (string, error) {
+func (jwtCtrl *JwtCtrl) GenerateCode(subject Subject, key string, duration time.Duration, audiences ...string) (string, error) {
 	nowTime := time.Now().UTC()
+	subStr, err := json.Marshal(subject)
+	if err != nil {
+		return "", err
+	}
 	claim := jwt.RegisteredClaims{
 		Issuer:    jwtCtrl.Issuer,
 		IssuedAt:  jwt.NewNumericDate(nowTime),
 		ExpiresAt: jwt.NewNumericDate(nowTime.Add(duration)),
-		Subject:   subject,
+		Subject:   string(subStr),
 		Audience:  audiences,
 	}
 	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)

@@ -31,3 +31,5 @@ login_mail_server:
   email: testing@gmail.com
   password: testing
   enable: false
+jwt:
+  key: testing123
