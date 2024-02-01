@@ -9,16 +9,23 @@ import (
 	"gorm.io/gorm"
 )
 
+type LoginData struct {
+	Username string `json:"username" binding:"required,min=3"`
+	Password string `json:"password" binding:"required,min=3"`
+}
+
 func (apiCtrl *ApiCtrl) Login(ctx *gin.Context) {
-	if err := apiCtrl.Controller.Login("", "", &models.User{}); err != nil {
+	data := &LoginData{}
+	if err := ctx.ShouldBindJSON(data); err != nil {
+		panic(middlewares.NewPanic(http.StatusUnprocessableEntity, 1, "Wrong data format", err))
+	}
+	if loginTkn, err := apiCtrl.Controller.Login(data.Username, data.Password, &models.User{}); err != nil {
 		switch err {
 		case gorm.ErrRecordNotFound:
 			panic(middlewares.NewPanic(http.StatusNotFound, 1, "User Not Found", err))
 		}
 		panic(middlewares.NewPanic(http.StatusBadRequest, 0, "Failed to signup (Unknown)", err))
+	} else {
+		ctx.JSON(http.StatusOK, loginTkn)
 	}
-	ctx.JSON(http.StatusOK, middlewares.DefResp{
-		Code:    1,
-		Message: "Successfully Login",
-	})
 }

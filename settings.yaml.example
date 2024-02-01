@@ -33,3 +33,5 @@ login_mail_server:
   enable: false
 jwt:
   key: testing123
+  cache_duration: 3600
+  login_duration: 2592000

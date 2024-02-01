@@ -42,7 +42,9 @@ type OtpService struct {
 }
 
 type JwtService struct {
-	Key string `yaml:"key"`
+	Key           string `yaml:"key"`
+	CacheDuration uint   `yaml:"cache_duration"`
+	LoginDuration uint   `yaml:"login_duration"`
 }
 
 type Settings struct {

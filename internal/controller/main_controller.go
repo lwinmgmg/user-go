@@ -18,6 +18,7 @@ type Controller struct {
 	LoginMail *services.MailService
 	Otp       *services.OtpService
 	JwtCtrl   *jwtctrl.JwtCtrl
+	Setting   *env.Settings
 }
 
 func NewContoller(settings env.Settings) *Controller {
@@ -42,5 +43,6 @@ func NewContoller(settings env.Settings) *Controller {
 			Issuer: settings.Service,
 		}, otpctrl.STANDARD_OPT_DURATION, settings.OtpService.Skew),
 		JwtCtrl: jwtctrl.NewJwtCtrl(settings.Service),
+		Setting: &settings,
 	}
 }

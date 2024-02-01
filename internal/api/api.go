@@ -11,9 +11,13 @@ type ApiCtrl struct {
 	Settings env.Settings
 }
 
-func (apiCtrl *ApiCtrl) RegisterRoutes(router gin.IRoutes) {
-	router.POST("/login", apiCtrl.Login)
-	router.POST("/signup", apiCtrl.Signup)
+func (apiCtrl *ApiCtrl) RegisterRoutes(router gin.IRouter) {
+	funcRouter := router.Group("/api/v1/func/user")
+	funcRouter.POST("/login", apiCtrl.Login)
+	funcRouter.POST("/signup", apiCtrl.Signup)
+
+	userRouter := router.Group("/api/v1/user")
+	userRouter.GET("/profile", apiCtrl.AuthMiddleware, apiCtrl.GetProfile)
 }
 
 func NewApiCtrl(ctrl controller.Controller) *ApiCtrl {

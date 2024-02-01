@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/lwinmgmg/user-go/internal/models"
+	"github.com/lwinmgmg/user-go/pkg/hashing"
 	"gorm.io/gorm"
 )
 
@@ -23,8 +24,13 @@ func (data *UserSignUpData) Validate() error {
 }
 
 func (ctrl *Controller) Signup(userData *UserSignUpData) error {
+	hashPass, err := hashing.Hash256(userData.Password)
+	if err != nil {
+		return err
+	}
 	user := models.User{
 		Username: userData.UserName,
+		Password: hashPass,
 	}
 	if err := user.GetUserByUsername(userData.UserName, ctrl.RoDb); err != gorm.ErrRecordNotFound {
 		if err == nil {
