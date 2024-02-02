@@ -1,6 +1,9 @@
 package hashing
 
-import "crypto/sha256"
+import (
+	"crypto/sha256"
+	"encoding/base64"
+)
 
 func Hash256(input string) ([]byte, error) {
 	sha := sha256.New()
@@ -8,4 +11,12 @@ func Hash256(input string) ([]byte, error) {
 		return nil, err
 	}
 	return sha.Sum(nil), nil
+}
+
+func Hash256Hex(input string) (string, error) {
+	val, err := Hash256(input)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(val), nil
 }

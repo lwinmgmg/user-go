@@ -18,6 +18,7 @@ func (apiCtrl *ApiCtrl) RegisterRoutes(router gin.IRouter) {
 
 	userRouter := router.Group("/api/v1/user")
 	userRouter.GET("/profile", apiCtrl.AuthMiddleware, apiCtrl.GetProfile)
+	userRouter.GET("/email_confirm", apiCtrl.AuthMiddleware, apiCtrl.EmailConfirm)
 }
 
 func NewApiCtrl(ctrl controller.Controller) *ApiCtrl {

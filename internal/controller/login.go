@@ -39,10 +39,7 @@ func (ctrl *Controller) Login(username, password string, user *models.User) (*Lo
 		return loginTkn, nil
 	}
 	// Otp Authentication is required
-	uuid4, err := hashing.NewUuid4Hash256()
-	if err != nil {
-		return loginTkn, err
-	}
+	uuid4 := hashing.NewUuid4() + hashing.NewUuid4()
 	loginTkn.TokenType = OTP_TKN
 	loginTkn.Value = string(uuid4)
 	tknExpTime := 5 * time.Minute

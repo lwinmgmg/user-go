@@ -11,4 +11,8 @@ func TestHash256(t *testing.T) {
 	if data == nil || err != nil {
 		t.Errorf("Error on hashing 256 : %v, %v", data, err)
 	}
+	datax, err := hashing.Hash256Hex("LMM")
+	if datax == "" || err != nil {
+		t.Errorf("Error on hashing 256 : %v, %v", datax, err)
+	}
 }

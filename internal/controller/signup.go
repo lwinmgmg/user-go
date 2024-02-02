@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/lwinmgmg/user-go/internal/models"
+	"github.com/lwinmgmg/user-go/internal/services"
 	"github.com/lwinmgmg/user-go/pkg/hashing"
 	"gorm.io/gorm"
 )
@@ -23,20 +24,20 @@ func (data *UserSignUpData) Validate() error {
 	return nil
 }
 
-func (ctrl *Controller) Signup(userData *UserSignUpData) error {
+func (ctrl *Controller) Signup(userData *UserSignUpData) (loginTkn LoginToken, err error) {
 	hashPass, err := hashing.Hash256(userData.Password)
 	if err != nil {
-		return err
+		return
 	}
 	user := models.User{
 		Username: userData.UserName,
 		Password: hashPass,
 	}
-	if err := user.GetUserByUsername(userData.UserName, ctrl.RoDb); err != gorm.ErrRecordNotFound {
+	if err = user.GetUserByUsername(userData.UserName, ctrl.RoDb); err != gorm.ErrRecordNotFound {
 		if err == nil {
-			return ErrUserExist
+			return loginTkn, ErrUserExist
 		}
-		return err
+		return
 	}
 	partner := models.Partner{
 		FirstName: userData.FirstName,
@@ -44,17 +45,26 @@ func (ctrl *Controller) Signup(userData *UserSignUpData) error {
 		Email:     userData.Email,
 		Phone:     userData.Phone,
 	}
-	if err := partner.CheckEmail(ctrl.RoDb); err != nil {
-		return err
+	if err = partner.CheckEmail(ctrl.RoDb); err != nil {
+		return
 	}
-	if err := partner.CheckPhone(ctrl.RoDb); err != nil {
-		return err
+	if err = partner.CheckPhone(ctrl.RoDb); err != nil {
+		return
 	}
-	return ctrl.Db.Transaction(func(tx *gorm.DB) error {
+	if err = ctrl.Db.Transaction(func(tx *gorm.DB) error {
 		if err := partner.Create(tx); err != nil {
 			return err
 		}
 		user.PartnerID = partner.ID
 		return user.Create(tx)
-	})
+	}); err != nil {
+		return
+	}
+	formattedKey := services.FormatJwtKey(user.Username, user.Code, string(user.Password), ctrl.Setting.JwtService.Key)
+	jwtToken, err := services.GenerateUserLoginJwt(user.Code, formattedKey, ctrl.Setting, ctrl.JwtCtrl)
+	if err != nil {
+		return
+	}
+	loginTkn.Value = jwtToken
+	return
 }

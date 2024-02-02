@@ -16,15 +16,13 @@ func (apiCtrl *ApiCtrl) Signup(ctx *gin.Context) {
 	if err := data.Validate(); err != nil {
 		panic(middlewares.NewPanic(http.StatusUnprocessableEntity, 2, "Invalid data format", err))
 	}
-	if err := apiCtrl.Controller.Signup(data); err != nil {
+	resp, err := apiCtrl.Controller.Signup(data)
+	if err != nil {
 		switch err {
 		case controller.ErrUserExist:
 			panic(middlewares.NewPanic(http.StatusBadRequest, 4, "User already exist", err))
 		}
 		panic(middlewares.NewPanic(http.StatusBadRequest, 0, "Failed to signup", err))
 	}
-	ctx.JSON(http.StatusOK, middlewares.DefResp{
-		Code:    1,
-		Message: "Successfully Signup",
-	})
+	ctx.JSON(http.StatusOK, resp)
 }
