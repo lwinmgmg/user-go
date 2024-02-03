@@ -17,8 +17,8 @@ var (
 )
 
 type LoginToken struct {
-	TokenType TKN_TYPE `json:"token_type"`
-	Value     string   `json:"value"`
+	TokenType   TKN_TYPE `json:"token_type"`
+	AccessToken string   `json:"access_token"`
 }
 
 // User Login
@@ -35,16 +35,19 @@ func (ctrl *Controller) Login(username, password string, user *models.User) (*Lo
 		if err != nil {
 			return loginTkn, err
 		}
-		loginTkn.Value = jwtToken
+		loginTkn.AccessToken = jwtToken
 		return loginTkn, nil
 	}
 	// Otp Authentication is required
-	uuid4 := hashing.NewUuid4() + hashing.NewUuid4()
+	uuid4 := hashing.NewUuid4() + hashing.NewUuid4() + username
 	loginTkn.TokenType = OTP_TKN
-	loginTkn.Value = string(uuid4)
+	loginTkn.AccessToken = string(uuid4)
 	tknExpTime := 5 * time.Minute
-	otpVal := services.FormatOtpKey(user.OtpUrl, user.Code, services.OtpLogin)
-	if err := ctrl.RedisCtrl.SetKey(fmt.Sprintf("otp:%v", string(uuid4)), otpVal, tknExpTime); err != nil {
+	otpVal, err := services.EncodeOtpValue(user.OtpUrl, user.Code, services.OtpLogin)
+	if err != nil {
+		return loginTkn, err
+	}
+	if err := ctrl.RedisCtrl.SetKey(fmt.Sprintf("otp:%v", uuid4), otpVal, tknExpTime); err != nil {
 		return loginTkn, err
 	}
 	// No need to send email for Authenticator User

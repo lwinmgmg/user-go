@@ -25,6 +25,7 @@ func (data *UserSignUpData) Validate() error {
 }
 
 func (ctrl *Controller) Signup(userData *UserSignUpData) (loginTkn LoginToken, err error) {
+	loginTkn.TokenType = BEARER
 	hashPass, err := hashing.Hash256(userData.Password)
 	if err != nil {
 		return
@@ -65,6 +66,6 @@ func (ctrl *Controller) Signup(userData *UserSignUpData) (loginTkn LoginToken, e
 	if err != nil {
 		return
 	}
-	loginTkn.Value = jwtToken
+	loginTkn.AccessToken = jwtToken
 	return
 }

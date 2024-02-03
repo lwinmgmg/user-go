@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -22,8 +23,28 @@ var (
 	OPT_UUID_FORMAT string = fmt.Sprintf("%v%v%v%v%v", "%v", OtpKeyDivider, "%v", OtpKeyDivider, "%v") //otp url, username, type
 )
 
-func FormatOtpKey(otpUrl, code string, optType OtpConfirmType) string {
-	return fmt.Sprintf(OPT_UUID_FORMAT, otpUrl, code, optType)
+type OtpValue struct {
+	Url  string         `json:"url"`
+	Code string         `json:"code"`
+	Type OtpConfirmType `json:"type"`
+}
+
+func EncodeOtpValue(otpUrl, code string, otpType OtpConfirmType) (string, error) {
+	otpValue := OtpValue{
+		Url:  otpUrl,
+		Code: code,
+		Type: otpType,
+	}
+	val, err := json.Marshal(otpValue)
+	return string(val), err
+}
+
+func ParseOtpValue(otpStr string) (OtpValue, error) {
+	otpValue := OtpValue{}
+	if err := json.Unmarshal([]byte(otpStr), &otpValue); err != nil {
+		return otpValue, err
+	}
+	return otpValue, nil
 }
 
 type OtpService struct {

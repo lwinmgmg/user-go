@@ -7,7 +7,10 @@ import (
 )
 
 func TestOtpFormatKey(t *testing.T) {
-	val := services.FormatOtpKey("url", "code", services.OtpLogin)
+	val, err := services.EncodeOtpValue("url", "code", services.OtpLogin)
+	if err != nil {
+		t.Error(err)
+	}
 	if val == "" {
 		t.Error("Value is empty")
 	}
