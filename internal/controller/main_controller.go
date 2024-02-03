@@ -35,8 +35,8 @@ func NewContoller(settings env.Settings) *Controller {
 		panic(err)
 	}
 	return &Controller{
-		Db:        db.Debug(),
-		RoDb:      roDb.Debug(),
+		Db:        db,
+		RoDb:      roDb,
 		RedisCtrl: redisctrl.NewRedisCtrl(rd, time.Second*5),
 		LoginMail: services.NewMailService(settings.LoginEmailServer),
 		Otp: services.NewOtpService(&otpctrl.OtpCtrl{

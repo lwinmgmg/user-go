@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"net/url"
+	"os"
 
 	"github.com/lwinmgmg/user-go/env"
 	"gorm.io/driver/postgres"
@@ -17,7 +18,12 @@ func GetPsql(dbConf env.DbServer) (*gorm.DB, error) {
 		url.QueryEscape(dbConf.Password),
 		dbConf.DbName,
 	)
-	return gorm.Open(postgres.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
 	})
+	val, _ := os.LookupEnv("GIN_MODE")
+	if val != "release" {
+		return db.Debug(), err
+	}
+	return db, err
 }

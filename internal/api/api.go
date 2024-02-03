@@ -15,6 +15,7 @@ func (apiCtrl *ApiCtrl) RegisterRoutes(router gin.IRouter) {
 	funcRouter := router.Group("/api/v1/func/user")
 	funcRouter.POST("/login", apiCtrl.Login)
 	funcRouter.POST("/signup", apiCtrl.Signup)
+	funcRouter.POST("/otp_auth", apiCtrl.OtpAuth)
 
 	userRouter := router.Group("/api/v1/user")
 	userRouter.GET("/profile", apiCtrl.AuthMiddleware, apiCtrl.GetProfile)
