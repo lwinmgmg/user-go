@@ -14,6 +14,10 @@ const (
 	USER_CODE_LENGTH int = 10
 )
 
+var (
+	ErrWrongPassword = errors.New("wrong_password")
+)
+
 type User struct {
 	DefaultModel
 	Code            string  `gorm:"uniqueIndex; index; not null; size:10;"`
@@ -61,7 +65,7 @@ func (user *User) Authenticate(tx *gorm.DB, username, password string) error {
 		return err
 	}
 	if !bytes.Equal(user.Password, hPass) {
-		return errors.New("wrong password")
+		return ErrWrongPassword
 	}
 	return nil
 }

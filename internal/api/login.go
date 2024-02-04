@@ -23,6 +23,8 @@ func (apiCtrl *ApiCtrl) Login(ctx *gin.Context) {
 		switch err {
 		case gorm.ErrRecordNotFound:
 			panic(middlewares.NewPanic(http.StatusNotFound, 1, "User Not Found", err))
+		case models.ErrWrongPassword:
+			panic(middlewares.NewPanic(http.StatusUnauthorized, 2, "Wrong Password", err))
 		}
 		panic(middlewares.NewPanic(http.StatusBadRequest, 0, "Failed to signup (Unknown)", err))
 	} else {
