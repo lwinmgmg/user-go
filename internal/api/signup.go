@@ -10,7 +10,7 @@ import (
 
 func (apiCtrl *ApiCtrl) Signup(ctx *gin.Context) {
 	data := &controller.UserSignUpData{}
-	if err := ctx.ShouldBindJSON(data); err != nil {
+	if err := ctx.ShouldBind(data); err != nil {
 		panic(middlewares.NewPanic(http.StatusUnprocessableEntity, 1, "Wrong data format", err))
 	}
 	if err := data.Validate(); err != nil {

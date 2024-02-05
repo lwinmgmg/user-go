@@ -10,13 +10,13 @@ import (
 )
 
 type LoginData struct {
-	Username string `json:"username" binding:"required,min=3"`
-	Password string `json:"password" binding:"required,min=3"`
+	Username string `form:"username" binding:"required,min=3"`
+	Password string `form:"password" binding:"required,min=3"`
 }
 
 func (apiCtrl *ApiCtrl) Login(ctx *gin.Context) {
 	data := &LoginData{}
-	if err := ctx.ShouldBindJSON(data); err != nil {
+	if err := ctx.ShouldBind(data); err != nil {
 		panic(middlewares.NewPanic(http.StatusUnprocessableEntity, 1, "Wrong data format", err))
 	}
 	if loginTkn, err := apiCtrl.Controller.Login(data.Username, data.Password, &models.User{}); err != nil {
