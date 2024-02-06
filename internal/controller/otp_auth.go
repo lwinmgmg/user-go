@@ -38,6 +38,7 @@ func (ctrl Controller) OtpAuth(otpAuth *OtpAuth, user *models.User) (loginTkn Lo
 	if _, err = user.GetPartnerByCode(otpValue.Code, ctrl.RoDb); err != nil {
 		return
 	}
+	loginTkn.UserCode = user.Code
 	if !ctrl.Otp.Validate(otpAuth.PassCode, otpValue.Url) {
 		err = ErrFailedToValidateOtp
 		return

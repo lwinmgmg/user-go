@@ -21,6 +21,7 @@ func (ctrl *Controller) EmailConfirm(userCode string) (loginTkn LoginToken, err 
 	if _, err = user.GetPartnerByCode(userCode, ctrl.RoDb); err != nil {
 		return
 	}
+	loginTkn.UserCode = user.Code
 	if user.Partner.IsEmailConfirmed {
 		err = ErrEmailAldyConfirmed
 		return

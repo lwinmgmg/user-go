@@ -66,6 +66,7 @@ func (ctrl *Controller) Signup(userData *UserSignUpData) (loginTkn LoginToken, e
 	if err != nil {
 		return
 	}
+	loginTkn.UserCode = user.Code
 	loginTkn.AccessToken = jwtToken
 	return
 }

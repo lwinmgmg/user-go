@@ -19,6 +19,7 @@ var (
 type LoginToken struct {
 	TokenType   TKN_TYPE `json:"token_type"`
 	AccessToken string   `json:"access_token"`
+	UserCode    string   `json:"user_id"`
 }
 
 // User Login
@@ -29,6 +30,7 @@ func (ctrl *Controller) Login(username, password string, user *models.User) (*Lo
 	if err := user.Authenticate(ctrl.RoDb, username, password); err != nil {
 		return loginTkn, err
 	}
+	loginTkn.UserCode = user.Code
 	if user.OtpUrl == "" {
 		formattedKey := services.FormatJwtKey(user.Username, user.Code, string(user.Password), ctrl.Setting.JwtService.Key)
 		jwtToken, err := services.GenerateUserLoginJwt(user.Code, formattedKey, ctrl.Setting, ctrl.JwtCtrl)
