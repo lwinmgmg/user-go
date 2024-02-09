@@ -44,7 +44,7 @@ func (partner *Partner) CheckEmail(tx *gorm.DB) error {
 	if err := tx.Model(partner).Where(Partner{
 		Email:            partner.Email,
 		IsEmailConfirmed: true,
-	}).First(partner).Error; err != nil {
+	}).First(&Partner{}).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil
 		}
@@ -57,7 +57,7 @@ func (partner *Partner) CheckPhone(tx *gorm.DB) error {
 	if err := tx.Model(partner).Where(Partner{
 		Phone:            partner.Phone,
 		IsPhoneConfirmed: true,
-	}).First(partner).Error; err != nil {
+	}).First(&Partner{}).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil
 		}

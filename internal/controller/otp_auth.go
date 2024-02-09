@@ -9,8 +9,8 @@ import (
 )
 
 type OtpAuth struct {
-	AccessToken string `json:"access_token" binding:"required,min=3"`
-	PassCode    string `json:"passcode" binding:"required,min=3"`
+	AccessToken string `form:"access_token" binding:"required,min=3"`
+	PassCode    string `form:"passcode" binding:"required,min=3"`
 }
 
 var (
