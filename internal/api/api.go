@@ -21,6 +21,7 @@ func (apiCtrl *ApiCtrl) RegisterRoutes(router gin.IRouter) {
 	userRouter.GET("/profile", apiCtrl.AuthMiddleware, apiCtrl.GetProfile)
 	userRouter.GET("/profile_detail", apiCtrl.AuthMiddleware, apiCtrl.GetProfileDetail)
 	userRouter.GET("/email_confirm", apiCtrl.AuthMiddleware, apiCtrl.EmailConfirm)
+	userRouter.GET("/phone_confirm", apiCtrl.AuthMiddleware, apiCtrl.PhoneConfirm)
 	userRouter.GET("/enable_2fa", apiCtrl.AuthMiddleware, apiCtrl.Enable2FA)
 	userRouter.GET("/enable_authenticator", apiCtrl.AuthMiddleware, apiCtrl.EnableAuthenticator)
 }

@@ -12,35 +12,31 @@ import (
 )
 
 var (
-	ErrEmailConfirmRequired = errors.New("email_confirm_required")
-	ErrAldyEnable2FA        = errors.New("already_enabled_2fa")
+	ErrPhoneAldyConfirmed = errors.New("phone_already_confirmed")
 )
 
-func (ctrl *Controller) Enable2FA(userCode string) (loginTkn LoginToken, err error) {
+func (ctrl *Controller) PhoneConfirm(userCode string) (loginTkn LoginToken, err error) {
 	loginTkn.TokenType = OTP_TKN
 	user := models.User{}
 	if _, err = user.GetPartnerByCode(userCode, ctrl.RoDb); err != nil {
 		return
 	}
 	loginTkn.UserCode = user.Code
-	if !user.Partner.IsEmailConfirmed {
-		err = ErrEmailConfirmRequired
+	if user.Partner.IsPhoneConfirmed {
+		err = ErrPhoneAldyConfirmed
+		return
 	}
-	if err == ErrEmailConfirmRequired && !user.Partner.IsPhoneConfirmed {
+	if err = user.Partner.CheckPhone(ctrl.RoDb); err != nil {
 		return
 	}
 	uuid4 := hashing.NewUuid4()
 	loginTkn.AccessToken = string(uuid4)
 	tknExpTime := 5 * time.Minute
-	if user.OtpUrl != "" {
-		err = ErrAldyEnable2FA
-		return
-	}
 	url, err := ctrl.Otp.OtpCtrl.GenerateOtpUrl(user.Partner.Email, otpctrl.STANDARD_OPT_DURATION)
 	if err != nil {
 		return
 	}
-	otpVal, err := services.EncodeOtpValue(url, user.Code, services.OtpEnable)
+	otpVal, err := services.EncodeOtpValue(url, user.Code, services.OtpPhone)
 	if err != nil {
 		return
 	}
@@ -51,16 +47,6 @@ func (ctrl *Controller) Enable2FA(userCode string) (loginTkn LoginToken, err err
 	if err != nil {
 		return
 	}
-	if user.Partner.IsEmailConfirmed {
-		err = ctrl.LoginMail.Send(passCode, []string{user.Partner.Email})
-		if err != nil {
-			return
-		}
-	} else if user.Partner.IsPhoneConfirmed {
-		err = ctrl.PhoneService.Send(passCode, user.Partner.Phone)
-		if err != nil {
-			return
-		}
-	}
+	err = ctrl.PhoneService.Send(passCode, user.Partner.Phone)
 	return
 }

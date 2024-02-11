@@ -65,6 +65,10 @@ func (ctrl *Controller) Login(username, password string, user *models.User) (*Lo
 	if err != nil {
 		return loginTkn, err
 	}
-	go ctrl.LoginMail.Send(passCode, []string{partner.Email})
+	if user.Partner.IsEmailConfirmed {
+		go ctrl.LoginMail.Send(passCode, []string{partner.Email})
+	} else if user.Partner.IsPhoneConfirmed {
+		go ctrl.PhoneService.Send(passCode, user.Partner.Phone)
+	}
 	return loginTkn, nil
 }

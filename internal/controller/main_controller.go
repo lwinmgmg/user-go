@@ -12,13 +12,14 @@ import (
 )
 
 type Controller struct {
-	Db        *gorm.DB
-	RoDb      *gorm.DB
-	RedisCtrl *redisctrl.RedisCtrl
-	LoginMail *services.MailService
-	Otp       *services.OtpService
-	JwtCtrl   *jwtctrl.JwtCtrl
-	Setting   *env.Settings
+	Db           *gorm.DB
+	RoDb         *gorm.DB
+	RedisCtrl    *redisctrl.RedisCtrl
+	LoginMail    *services.MailService
+	PhoneService *services.PhoneService
+	Otp          *services.OtpService
+	JwtCtrl      *jwtctrl.JwtCtrl
+	Setting      *env.Settings
 }
 
 func NewContoller(settings env.Settings) *Controller {
@@ -35,10 +36,11 @@ func NewContoller(settings env.Settings) *Controller {
 		panic(err)
 	}
 	return &Controller{
-		Db:        db,
-		RoDb:      roDb,
-		RedisCtrl: redisctrl.NewRedisCtrl(rd, time.Second*5),
-		LoginMail: services.NewMailService(settings.LoginEmailServer),
+		Db:           db,
+		RoDb:         roDb,
+		RedisCtrl:    redisctrl.NewRedisCtrl(rd, time.Second*5),
+		LoginMail:    services.NewMailService(settings.LoginEmailServer),
+		PhoneService: services.NewPhoneServer(),
 		Otp: services.NewOtpService(&otpctrl.OtpCtrl{
 			Issuer: settings.Service,
 		}, otpctrl.STANDARD_OPT_DURATION, settings.OtpService.Skew),

@@ -23,10 +23,12 @@ type Authenticator struct {
 	TokenType   TKN_TYPE `json:"token_type"`
 	Image       string   `json:"image"`
 	Key         string   `json:"key"`
+	UserCode    string   `json:"user_id"`
 }
 
 func (ctrl *Controller) EnableAuthenticator(userCode string) (authr Authenticator, err error) {
 	authr.TokenType = OTP_TKN
+	authr.UserCode = userCode
 	user := models.User{}
 	if _, err = user.GetPartnerByCode(userCode, ctrl.RoDb); err != nil {
 		return
