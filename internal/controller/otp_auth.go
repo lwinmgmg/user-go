@@ -20,6 +20,7 @@ var (
 
 func (ctrl Controller) OtpAuth(otpAuth *OtpAuth, user *models.User) (loginTkn LoginToken, otpConfirmType services.OtpConfirmType, err error) {
 	loginTkn.TokenType = BEARER
+	loginTkn.SendOtpType = SOtpAuth
 	otpConfirmType = services.OtpLogin
 	val, err := ctrl.RedisCtrl.GetKey(fmt.Sprintf("otp:%v", otpAuth.AccessToken))
 	if err != nil {

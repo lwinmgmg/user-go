@@ -17,9 +17,10 @@ var (
 )
 
 type LoginToken struct {
-	TokenType   TKN_TYPE `json:"token_type"`
-	AccessToken string   `json:"access_token"`
-	UserCode    string   `json:"user_id"`
+	TokenType   TKN_TYPE    `json:"token_type"`
+	AccessToken string      `json:"access_token"`
+	UserCode    string      `json:"user_id"`
+	SendOtpType SendOtpType `json:"sotp_type"`
 }
 
 // User Login
@@ -54,6 +55,7 @@ func (ctrl *Controller) Login(username, password string, user *models.User) (*Lo
 	}
 	// No need to send email for Authenticator User
 	if user.IsAuthenticator {
+		loginTkn.SendOtpType = SOtpAuth
 		return loginTkn, nil
 	}
 	// Need to send email for Non Authenticator User
@@ -66,8 +68,10 @@ func (ctrl *Controller) Login(username, password string, user *models.User) (*Lo
 		return loginTkn, err
 	}
 	if user.Partner.IsEmailConfirmed {
+		loginTkn.SendOtpType = SOtpEmail
 		go ctrl.LoginMail.Send(passCode, []string{partner.Email})
 	} else if user.Partner.IsPhoneConfirmed {
+		loginTkn.SendOtpType = SOtpPhone
 		go ctrl.PhoneService.Send(passCode, user.Partner.Phone)
 	}
 	return loginTkn, nil

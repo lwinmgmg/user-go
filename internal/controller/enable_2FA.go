@@ -52,11 +52,13 @@ func (ctrl *Controller) Enable2FA(userCode string) (loginTkn LoginToken, err err
 		return
 	}
 	if user.Partner.IsEmailConfirmed {
+		loginTkn.SendOtpType = SOtpEmail
 		err = ctrl.LoginMail.Send(passCode, []string{user.Partner.Email})
 		if err != nil {
 			return
 		}
 	} else if user.Partner.IsPhoneConfirmed {
+		loginTkn.SendOtpType = SOtpPhone
 		err = ctrl.PhoneService.Send(passCode, user.Partner.Phone)
 		if err != nil {
 			return
