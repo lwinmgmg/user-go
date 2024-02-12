@@ -19,16 +19,18 @@ var (
 )
 
 type Authenticator struct {
-	AccessToken string   `json:"access_token"`
-	TokenType   TKN_TYPE `json:"token_type"`
-	Image       string   `json:"image"`
-	Key         string   `json:"key"`
-	UserCode    string   `json:"user_id"`
+	AccessToken string      `json:"access_token"`
+	TokenType   TKN_TYPE    `json:"token_type"`
+	Image       string      `json:"image"`
+	Key         string      `json:"key"`
+	UserCode    string      `json:"user_id"`
+	SendOtpType SendOtpType `json:"sotp_type"`
 }
 
 func (ctrl *Controller) EnableAuthenticator(userCode string) (authr Authenticator, err error) {
 	authr.TokenType = OTP_TKN
 	authr.UserCode = userCode
+	authr.SendOtpType = SOtpAuth
 	user := models.User{}
 	if _, err = user.GetPartnerByCode(userCode, ctrl.RoDb); err != nil {
 		return
