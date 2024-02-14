@@ -1,23 +1,27 @@
 FROM golang:1.21-bookworm AS compiler
 
-ARG OUTPUT_DIR=bin
+ARG OUTPUT_DIR=/bin
 ARG OUTPUT_BINARY_NAME=user-go-http
+ARG DB_MIGRATE_BINARY=user-go-migrator
 ARG WORKDIR_NAME=/build
 
 WORKDIR ${WORKDIR_NAME}
 
 COPY . ${WORKDIR_NAME}/.
 
-RUN pwd
+WORKDIR ${WORKDIR_NAME}/cmd/http-server
 
 RUN go get && go mod vendor
 
 RUN go build -o "${OUTPUT_DIR}/${OUTPUT_BINARY_NAME}"
 
+RUN cd ${WORKDIR_NAME}/cmd/migrate-database && go build -o "${OUTPUT_DIR}/${DB_MIGRATE_BINARY}"
+
 FROM debian:bookworm
 
-ARG OUTPUT_DIR=bin
-ARG OUTPUT_BINARY_NAME=user-go
+ARG OUTPUT_DIR=/bin
+ARG OUTPUT_BINARY_NAME=user-go-http
+ARG DB_MIGRATE_BINARY=user-go-migrator
 ARG WORKDIR_NAME=/build
 
 ENV USER_GOLANG_VERSION=1.21
@@ -27,7 +31,7 @@ ENV USER_USER_UID=2023
 ENV USER_WORKDIR="/etc/user/config"
 ENV USER_BINARY_DIR="/usr/local/user/bin"
 ENV PATH=${PATH}:${USER_BINARY_DIR}
-ENV SETTING_PATH="${USER_WORKDIR}/env.yaml"
+ENV USER_SETTING_PATH="${USER_WORKDIR}/settings.yaml"
 ENV GIN_MODE=release
 
 RUN groupadd --gid ${USER_USER_UID} ${USER_USER} \
@@ -40,12 +44,14 @@ RUN apt install -y ca-certificates
 WORKDIR ${USER_WORKDIR}
 
 # Copy compiled binary
-COPY --from=compiler --chown=${USER_USER}:${USER_USER} "${WORKDIR_NAME}/${OUTPUT_DIR}/${OUTPUT_BINARY_NAME}" "${USER_BINARY_DIR}/user-go"
+COPY --from=compiler --chown=${USER_USER}:${USER_USER} "${OUTPUT_DIR}/${OUTPUT_BINARY_NAME}" "${USER_BINARY_DIR}/${OUTPUT_BINARY_NAME}"
+
+# Copy migrator binary
+COPY --from=compiler --chown=${USER_USER}:${USER_USER} "${OUTPUT_DIR}/${DB_MIGRATE_BINARY}" "${USER_BINARY_DIR}/${DB_MIGRATE_BINARY}"
 
 # To save vendor package if they go unsupported
 COPY --from=compiler --chown=${USER_USER}:${USER_USER} "${WORKDIR_NAME}/vendor" "${USER_USER_HOME_DIR}/vendor"
 
-EXPOSE 8069
-EXPOSE 8079
+EXPOSE 3001
 
-CMD [ "user-go" ]
+CMD [ "user-go-http" ]

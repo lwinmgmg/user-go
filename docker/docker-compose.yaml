@@ -1,0 +1,28 @@
+version: '3.0'
+services:
+  # For api service
+  user-go-api:
+    container_name: user_api
+    depends_on:
+      - redis
+      - postgres
+    build:
+      context: ../.
+      dockerfile: cmd/http-server/Dockerfile
+    environment:
+      USER_SETTING_PATH: /etc/user/config/settings.yaml.example
+      GIN_MODE: release
+    ports:
+      - 3001:3001
+    volumes:
+      - ../settings.yaml.example:/etc/user/config/settings.yaml.example
+  redis:
+    container_name: redis_user
+    image: redis
+  postgres:
+    container_name: postgres_user
+    image: postgres:16.0-bookworm
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: user

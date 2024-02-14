@@ -1,26 +1,26 @@
 service: LMM user service
 http_server:
-  host: localhost
+  host: 0.0.0.0
   port: 3001
 grpc_server:
   host: 0.0.0.0
   port: 3002
 db:
-  host: 0.0.0.0
+  host: postgres_user
   port: 5432
   user: admin
   password: admin
-  db_name: user_go
+  db_name: user
   table_prefix: user
 ro_db:
-  host: 0.0.0.0
+  host: postgres_user
   port: 5432
   user: admin
   password: admin
-  db_name: user_go
+  db_name: user
   table_prefix: user
 redis:
-  host: 0.0.0.0
+  host: redis_user
   port: 6379
   user: default
   password: example
