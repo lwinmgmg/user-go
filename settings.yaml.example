@@ -6,21 +6,21 @@ grpc_server:
   host: 0.0.0.0
   port: 3002
 db:
-  host: postgres_user
+  host: postgres
   port: 5432
   user: admin
   password: admin
   db_name: user
   table_prefix: user
 ro_db:
-  host: postgres_user
+  host: postgres
   port: 5432
   user: admin
   password: admin
   db_name: user
   table_prefix: user
 redis:
-  host: redis_user
+  host: redis
   port: 6379
   user: default
   password: example

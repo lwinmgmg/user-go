@@ -19,8 +19,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_PASSWORD: "example"
-          POSTGRES_DB: "users"
+          POSTGRES_USER: "admin"
+          POSTGRES_PASSWORD: "admin"
+          POSTGRES_DB: "user"
     steps:
     - uses: actions/checkout@v3
     - name: Set up Go
@@ -29,7 +30,7 @@ jobs:
         go-version: '1.21'
     - name: Test
       run: |
-        export SETTING_PATH=$(pwd)/env.yaml.example
+        export USER_SETTING_PATH=$(pwd)/settings.yaml.example
         go test -v ./...
 
   build:
@@ -53,7 +54,6 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
           file: cmd/http-server/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/users:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/user-go:latest
