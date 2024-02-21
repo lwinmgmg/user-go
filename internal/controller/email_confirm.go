@@ -37,7 +37,7 @@ func (ctrl *Controller) EmailConfirm(userCode string) (loginTkn LoginToken, err 
 	if err != nil {
 		return
 	}
-	otpVal, err := services.EncodeOtpValue(url, user.Code, services.OtpEmail)
+	otpVal, err := services.EncodeOtpValue(url, user.Code, services.OtpEmail, nil)
 	if err != nil {
 		return
 	}

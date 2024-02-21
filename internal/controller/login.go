@@ -46,7 +46,7 @@ func (ctrl *Controller) Login(username, password string, user *models.User) (*Lo
 	loginTkn.TokenType = OTP_TKN
 	loginTkn.AccessToken = string(uuid4)
 	tknExpTime := 5 * time.Minute
-	otpVal, err := services.EncodeOtpValue(user.OtpUrl, user.Code, services.OtpLogin)
+	otpVal, err := services.EncodeOtpValue(user.OtpUrl, user.Code, services.OtpLogin, nil)
 	if err != nil {
 		return loginTkn, err
 	}

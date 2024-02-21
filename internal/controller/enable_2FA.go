@@ -40,7 +40,7 @@ func (ctrl *Controller) Enable2FA(userCode string) (loginTkn LoginToken, err err
 	if err != nil {
 		return
 	}
-	otpVal, err := services.EncodeOtpValue(url, user.Code, services.OtpEnable)
+	otpVal, err := services.EncodeOtpValue(url, user.Code, services.OtpEnable, nil)
 	if err != nil {
 		return
 	}

@@ -17,6 +17,7 @@ const (
 	OtpPhone      OtpConfirmType = "3"
 	OtpAuthr      OtpConfirmType = "4"
 	OtpEnable     OtpConfirmType = "5"
+	OtpChangePass OtpConfirmType = "6"
 )
 
 var (
@@ -24,12 +25,13 @@ var (
 )
 
 type OtpValue struct {
-	Url  string         `json:"url"`
-	Code string         `json:"code"`
-	Type OtpConfirmType `json:"type"`
+	Url   string         `json:"url"`
+	Code  string         `json:"code"`
+	Type  OtpConfirmType `json:"type"`
+	Value map[string]any `json:"value"`
 }
 
-func EncodeOtpValue(otpUrl, code string, otpType OtpConfirmType) (string, error) {
+func EncodeOtpValue(otpUrl, code string, otpType OtpConfirmType, value map[string]any) (string, error) {
 	otpValue := OtpValue{
 		Url:  otpUrl,
 		Code: code,

@@ -7,7 +7,7 @@ import (
 )
 
 func TestOtpFormatKey(t *testing.T) {
-	val, err := services.EncodeOtpValue("url", "code", services.OtpLogin)
+	val, err := services.EncodeOtpValue("url", "code", services.OtpLogin, nil)
 	if err != nil {
 		t.Error(err)
 	}

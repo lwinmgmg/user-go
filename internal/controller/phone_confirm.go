@@ -37,7 +37,7 @@ func (ctrl *Controller) PhoneConfirm(userCode string) (loginTkn LoginToken, err 
 	if err != nil {
 		return
 	}
-	otpVal, err := services.EncodeOtpValue(url, user.Code, services.OtpPhone)
+	otpVal, err := services.EncodeOtpValue(url, user.Code, services.OtpPhone, nil)
 	if err != nil {
 		return
 	}
