@@ -41,7 +41,7 @@ func (ctrl *Controller) EnableAuthenticator(userCode string) (authr Authenticato
 	}
 	uuid4 := hashing.NewUuid4()
 	authr.AccessToken = uuid4
-	tknExpTime := 5 * time.Minute
+	tknExpTime := time.Duration(ctrl.Setting.OtpService.OtpDuration) * time.Second
 	otpVal, err := services.EncodeOtpValue(user.OtpUrl, user.Code, services.OtpAuthr, nil)
 	if err != nil {
 		return

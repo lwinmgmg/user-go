@@ -31,7 +31,7 @@ func (ctrl *Controller) Enable2FA(userCode string) (loginTkn LoginToken, err err
 	}
 	uuid4 := hashing.NewUuid4()
 	loginTkn.AccessToken = string(uuid4)
-	tknExpTime := 5 * time.Minute
+	tknExpTime := time.Duration(ctrl.Setting.OtpService.OtpDuration) * time.Second
 	if user.OtpUrl != "" {
 		err = ErrAldyEnable2FA
 		return

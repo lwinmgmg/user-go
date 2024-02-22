@@ -37,8 +37,9 @@ type EmailServer struct {
 }
 
 type OtpService struct {
-	Issuer string `yaml:"name"`
-	Skew   uint   `yaml:"skew"`
+	Issuer      string `yaml:"name"`
+	Skew        uint   `yaml:"skew"`
+	OtpDuration uint   `yaml:"otp_duration"`
 }
 
 type JwtService struct {

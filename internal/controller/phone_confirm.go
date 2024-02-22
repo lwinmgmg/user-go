@@ -32,7 +32,7 @@ func (ctrl *Controller) PhoneConfirm(userCode string) (loginTkn LoginToken, err 
 	}
 	uuid4 := hashing.NewUuid4()
 	loginTkn.AccessToken = string(uuid4)
-	tknExpTime := 5 * time.Minute
+	tknExpTime := time.Duration(ctrl.Setting.OtpService.OtpDuration) * time.Second
 	url, err := ctrl.Otp.OtpCtrl.GenerateOtpUrl(user.Partner.Email, otpctrl.STANDARD_OPT_DURATION)
 	if err != nil {
 		return
