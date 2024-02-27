@@ -2,13 +2,10 @@ package controller
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/services"
-	"github.com/lwinmgmg/user-go/pkg/hashing"
-	otpctrl "github.com/lwinmgmg/user-go/pkg/otp-ctrl"
 )
 
 var (
@@ -30,21 +27,9 @@ func (ctrl *Controller) EmailConfirm(userCode string) (loginTkn LoginToken, err 
 	if err = user.Partner.CheckEmail(ctrl.RoDb); err != nil {
 		return
 	}
-	uuid4 := hashing.NewUuid4()
-	loginTkn.AccessToken = string(uuid4)
-	tknExpTime := time.Duration(ctrl.Setting.OtpService.OtpDuration) * time.Second
-	url, err := ctrl.Otp.OtpCtrl.GenerateOtpUrl(user.Partner.Email, otpctrl.STANDARD_OPT_DURATION)
-	if err != nil {
-		return
-	}
-	otpVal, err := services.EncodeOtpValue(url, user.Code, services.OtpEmail, nil)
-	if err != nil {
-		return
-	}
-	if err = ctrl.RedisCtrl.SetKey(fmt.Sprintf("otp:%v", uuid4), otpVal, tknExpTime); err != nil {
-		return
-	}
-	passCode, err := ctrl.Otp.GenerateCode(url)
+	// Otp Authentication is required
+	passCode, err := GenerateOtp(&loginTkn, user.OtpUrl, user.Code, services.OtpEmail, ctrl.RedisCtrl, ctrl.Otp,
+		time.Duration(ctrl.Setting.OtpService.OtpDuration)*time.Second, nil)
 	if err != nil {
 		return
 	}

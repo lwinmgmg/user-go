@@ -13,9 +13,10 @@ import (
 type SendOtpType string
 
 const (
-	SOtpPhone SendOtpType = "phone"
-	SOtpEmail SendOtpType = "email"
-	SOtpAuth  SendOtpType = "auth"
+	SOtpPhone  SendOtpType = "phone"
+	SOtpEmail  SendOtpType = "email"
+	SOtpAuth   SendOtpType = "auth"
+	SOtpChPass SendOtpType = "ch_pass"
 )
 
 var (

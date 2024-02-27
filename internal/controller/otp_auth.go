@@ -3,9 +3,12 @@ package controller
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/services"
+	"github.com/lwinmgmg/user-go/pkg/hashing"
+	redisctrl "github.com/lwinmgmg/user-go/pkg/redis-ctrl"
 )
 
 type OtpAuth struct {
@@ -17,6 +20,25 @@ var (
 	ErrUnknownOtpConfirmType = errors.New("unknown_otp_confirm_type")
 	ErrFailedToValidateOtp   = errors.New("otp_failed")
 )
+
+func GenerateOtp(loginTkn *LoginToken, otpUrl, userCode string, otpConfirmType services.OtpConfirmType,
+	redisCtrl *redisctrl.RedisCtrl, otpSer *services.OtpService, duration time.Duration, value map[string]any) (string, error) {
+	uuid4 := hashing.NewUuid4() + hashing.NewUuid4() + userCode
+	loginTkn.TokenType = OTP_TKN
+	loginTkn.AccessToken = string(uuid4)
+	otpVal, err := services.EncodeOtpValue(otpUrl, userCode, otpConfirmType, value)
+	if err != nil {
+		return "", err
+	}
+	if err := redisCtrl.SetKey(fmt.Sprintf("otp:%v", uuid4), otpVal, duration); err != nil {
+		return "", err
+	}
+	passCode, err := otpSer.GenerateCode(otpUrl)
+	if err != nil {
+		return "", err
+	}
+	return passCode, nil
+}
 
 func (ctrl Controller) OtpAuth(otpAuth *OtpAuth, user *models.User) (loginTkn LoginToken, otpConfirmType services.OtpConfirmType, err error) {
 	loginTkn.TokenType = BEARER
@@ -60,6 +82,21 @@ func (ctrl Controller) OtpAuth(otpAuth *OtpAuth, user *models.User) (loginTkn Lo
 	case services.OtpPhone:
 		user.Partner.IsPhoneConfirmed = true
 		isUser = false
+	case services.OtpChangePass:
+		password, ok := otpValue.Value["password"]
+		if !ok {
+			err = ErrFailedToValidateOtp
+		}
+		passwordStr, ok := password.(string)
+		if !ok {
+			err = ErrFailedToValidateOtp
+		}
+		var hashPass []byte
+		hashPass, err = hashing.Hash256(passwordStr)
+		if err != nil {
+			return
+		}
+		user.Password = hashPass
 	}
 	if isUser {
 		err = ctrl.Db.Save(user).Error

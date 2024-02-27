@@ -4,13 +4,11 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"image/png"
 	"time"
 
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/services"
-	"github.com/lwinmgmg/user-go/pkg/hashing"
 	"github.com/pquerna/otp"
 )
 
@@ -19,12 +17,9 @@ var (
 )
 
 type Authenticator struct {
-	AccessToken string      `json:"access_token"`
-	TokenType   TKN_TYPE    `json:"token_type"`
-	Image       string      `json:"image"`
-	Key         string      `json:"key"`
-	UserCode    string      `json:"user_id"`
-	SendOtpType SendOtpType `json:"sotp_type"`
+	LoginToken
+	Image string `json:"image"`
+	Key   string `json:"key"`
 }
 
 func (ctrl *Controller) EnableAuthenticator(userCode string) (authr Authenticator, err error) {
@@ -39,14 +34,9 @@ func (ctrl *Controller) EnableAuthenticator(userCode string) (authr Authenticato
 		err = Err2FARequired
 		return
 	}
-	uuid4 := hashing.NewUuid4()
-	authr.AccessToken = uuid4
-	tknExpTime := time.Duration(ctrl.Setting.OtpService.OtpDuration) * time.Second
-	otpVal, err := services.EncodeOtpValue(user.OtpUrl, user.Code, services.OtpAuthr, nil)
+	_, err = GenerateOtp(&authr.LoginToken, user.OtpUrl, user.Code, services.OtpAuthr, ctrl.RedisCtrl, ctrl.Otp,
+		time.Duration(ctrl.Setting.OtpService.OtpDuration)*time.Second, nil)
 	if err != nil {
-		return
-	}
-	if err = ctrl.RedisCtrl.SetKey(fmt.Sprintf("otp:%v", uuid4), otpVal, tknExpTime); err != nil {
 		return
 	}
 	key, err := otp.NewKeyFromURL(user.OtpUrl)

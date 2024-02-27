@@ -1,12 +1,10 @@
 package controller
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/services"
-	"github.com/lwinmgmg/user-go/pkg/hashing"
 )
 
 type TKN_TYPE string
@@ -42,15 +40,9 @@ func (ctrl *Controller) Login(username, password string, user *models.User) (*Lo
 		return loginTkn, nil
 	}
 	// Otp Authentication is required
-	uuid4 := hashing.NewUuid4() + hashing.NewUuid4() + username
-	loginTkn.TokenType = OTP_TKN
-	loginTkn.AccessToken = string(uuid4)
-	tknExpTime := time.Duration(ctrl.Setting.OtpService.OtpDuration) * time.Second
-	otpVal, err := services.EncodeOtpValue(user.OtpUrl, user.Code, services.OtpLogin, nil)
+	passCode, err := GenerateOtp(loginTkn, user.OtpUrl, user.Code, services.OtpLogin, ctrl.RedisCtrl, ctrl.Otp,
+		time.Duration(ctrl.Setting.OtpService.OtpDuration)*time.Second, nil)
 	if err != nil {
-		return loginTkn, err
-	}
-	if err := ctrl.RedisCtrl.SetKey(fmt.Sprintf("otp:%v", uuid4), otpVal, tknExpTime); err != nil {
 		return loginTkn, err
 	}
 	// No need to send email for Authenticator User
@@ -58,12 +50,7 @@ func (ctrl *Controller) Login(username, password string, user *models.User) (*Lo
 		loginTkn.SendOtpType = SOtpAuth
 		return loginTkn, nil
 	}
-	// Need to send email for Non Authenticator User
 	partner, err := user.GetPartnerByCode(user.Code, ctrl.RoDb)
-	if err != nil {
-		return loginTkn, err
-	}
-	passCode, err := ctrl.Otp.GenerateCode(user.OtpUrl)
 	if err != nil {
 		return loginTkn, err
 	}
