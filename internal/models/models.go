@@ -32,6 +32,10 @@ func computeTableName(input string) string {
 	return Env.Db.TablePrefix + "_" + input
 }
 
+func ComputeTableName(input string) string {
+	return computeTableName(input)
+}
+
 type DefaultModel struct {
 	ID         uint      `gorm:"primaryKey"`
 	CreateDate time.Time `gorm:"autoCreateTime:nano"`
