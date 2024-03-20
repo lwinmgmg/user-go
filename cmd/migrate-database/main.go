@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
@@ -16,10 +18,21 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if err := models.InitDb(db); err != nil {
+	user := &models.User{}
+	partner := &models.Partner{}
+	client := &oauth.Client{}
+	scope := &oauth.Scope{}
+	cs := &oauth.ClientScope{}
+	if err := db.Migrator().AutoMigrate(
+		user,
+		partner,
+		client,
+		scope,
+		cs,
+	); err != nil {
 		panic(err)
 	}
-	if err := oauth.InitDb(db); err != nil {
-		panic(err)
-	}
+	// Creating sequence
+	db.Exec(fmt.Sprintf("CREATE SEQUENCE IF NOT EXISTS %v;", partner.GetSequence()))
+	db.Exec(fmt.Sprintf("CREATE SEQUENCE IF NOT EXISTS %v START WITH 100000;", user.GetSequence()))
 }

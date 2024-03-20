@@ -1,2 +1,2 @@
 export USER_SETTING_PATH=$(pwd)/settings.yaml
-go test -cover -coverprofile /tmp/c.out ./...
+go run cmd/migrate-database/main.go
