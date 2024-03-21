@@ -7,17 +7,26 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type Subject struct {
-	ClientID  string `json:"cid"`
+type UserSubject struct {
 	UserID    string `json:"uid"`
 	Reference string `json:"ref"`
+}
+
+type ThirdPartySubject struct {
+	ClientID string   `json:"cid"`
+	UserID   string   `json:"uid"`
+	Scopes   []string `json:"scp"`
+}
+
+type Subject interface {
+	UserSubject | ThirdPartySubject
 }
 
 type JwtCtrl struct {
 	Issuer string
 }
 
-func (jwtCtrl *JwtCtrl) GenerateCode(subject Subject, key string, duration time.Duration, audiences ...string) (string, error) {
+func (jwtCtrl *JwtCtrl) GenerateCode(subject any, key string, duration time.Duration, audiences ...string) (string, error) {
 	nowTime := time.Now().UTC()
 	subStr, err := json.Marshal(subject)
 	if err != nil {

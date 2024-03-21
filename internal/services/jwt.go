@@ -13,7 +13,7 @@ func FormatJwtKey(username, userCode, password, key string) string {
 }
 
 func GenerateUserLoginJwt(userCode, formattedKey string, settings *env.Settings, jwtCtrl *jwtctrl.JwtCtrl) (string, error) {
-	return jwtCtrl.GenerateCode(jwtctrl.Subject{
+	return jwtCtrl.GenerateCode(jwtctrl.UserSubject{
 		UserID: userCode,
 	}, formattedKey, time.Second*time.Duration(settings.JwtService.LoginDuration), settings.Service)
 }

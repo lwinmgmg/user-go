@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	jwtctrl "github.com/lwinmgmg/user-go/pkg/jwt-ctrl"
 	"github.com/lwinmgmg/user-go/pkg/middlewares"
 )
 
 func (apiCtrl *ApiCtrl) GetProfileDetail(ctx *gin.Context) {
-	sub := getSubject(ctx)
+	sub := getUserSubject[jwtctrl.UserSubject](ctx)
 	if resp, err := apiCtrl.Controller.GetProfileDetail(sub.UserID); err != nil {
 		panic(middlewares.NewPanic(http.StatusBadRequest, 0, "Failed to get profile (Unknown)", err))
 	} else {

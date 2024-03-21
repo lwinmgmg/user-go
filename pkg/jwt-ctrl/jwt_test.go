@@ -12,7 +12,7 @@ import (
 func TestJwtCtrl(t *testing.T) {
 	jwtC := jwtctrl.NewJwtCtrl("user")
 	jwtPassword := "password"
-	tkn, err := jwtC.GenerateCode(jwtctrl.Subject{
+	tkn, err := jwtC.GenerateCode(jwtctrl.UserSubject{
 		UserID: "lmm",
 	}, jwtPassword, time.Second)
 	if err != nil {
@@ -23,7 +23,7 @@ func TestJwtCtrl(t *testing.T) {
 	}); err != nil {
 		t.Errorf("Error on validating Token : %v", err)
 	}
-	tkn1, err := jwtC.GenerateCode(jwtctrl.Subject{
+	tkn1, err := jwtC.GenerateCode(jwtctrl.UserSubject{
 		UserID: "lmm",
 	}, jwtPassword, time.Nanosecond)
 	if err != nil {

@@ -43,12 +43,12 @@ func parseToken(str string) (string, error) {
 	return strs[1], nil
 }
 
-func getSubject(ctx *gin.Context) *jwtctrl.Subject {
+func getUserSubject[T jwtctrl.Subject](ctx *gin.Context) *T {
 	sub, ok := ctx.Get("subject")
 	if !ok {
 		panic(middlewares.NewPanic(http.StatusUnauthorized, 6, "Authorization Required!", ErrSubjectNotFound))
 	}
-	jwtSub, ok := sub.(*jwtctrl.Subject)
+	jwtSub, ok := sub.(*T)
 	if !ok {
 		panic(middlewares.NewPanic(http.StatusUnauthorized, 7, "Authorization Required!", ErrSubjectNotFound))
 	}
@@ -64,7 +64,7 @@ func (apiCtrl *ApiCtrl) AuthMiddleware(ctx *gin.Context) {
 	if err != nil {
 		panic(middlewares.NewPanic(http.StatusUnauthorized, 2, "Authorization Required!", err))
 	}
-	sub := &jwtctrl.Subject{}
+	sub := &jwtctrl.UserSubject{}
 	if val, err := apiCtrl.RedisCtrl.GetKey(formatRedisToken(token)); err == nil {
 		if err := json.Unmarshal([]byte(val), sub); err == nil {
 			ctx.Set("subject", sub)
