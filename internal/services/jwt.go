@@ -17,3 +17,14 @@ func GenerateUserLoginJwt(userCode, formattedKey string, settings *env.Settings,
 		UserID: userCode,
 	}, formattedKey, time.Second*time.Duration(settings.JwtService.LoginDuration), settings.Service)
 }
+
+func GenerateThirdpartyJwt(userCode, clientId, formattedKey string, settings *env.Settings, jwtCtrl *jwtctrl.JwtCtrl, scopes ...string) (string, error) {
+	return jwtCtrl.GenerateCode(
+		jwtctrl.ThirdPartySubject{
+			ClientID: clientId,
+			UserID:   userCode,
+			Scopes:   scopes,
+		},
+		formattedKey, time.Second*time.Duration(settings.JwtService.LoginDuration), settings.Service,
+	)
+}

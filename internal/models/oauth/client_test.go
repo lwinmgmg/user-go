@@ -19,12 +19,12 @@ func TestClientTableName(t *testing.T) {
 	}
 }
 
-func createTestClient(tx *gorm.DB) (*oauth.Client, error) {
+func createTestClient(tx *gorm.DB) (*oauth.Client, *models.User, error) {
 	uuid := hashing.NewUuid4()
 	secret := hashing.NewUuid4()
 	user, err := models.CreateTestUser("testing", "testing", tx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	client := oauth.Client{
 		Name:          "testing",
@@ -35,9 +35,17 @@ func createTestClient(tx *gorm.DB) (*oauth.Client, error) {
 		VerifiedLevel: oauth.SL1,
 	}
 	if err := tx.Create(&client).Error; err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return &client, err
+	scope := oauth.Scope{
+		Name:        "ReadUser",
+		Description: "Read the user info",
+		Level:       oauth.SL1,
+	}
+	if err := tx.Create(&scope).Error; err != nil {
+		return nil, nil, err
+	}
+	return &client, user, err
 }
 
 func TestGetClientByCid(t *testing.T) {
@@ -56,7 +64,7 @@ func TestGetClientByCid(t *testing.T) {
 			if err != gorm.ErrRecordNotFound {
 				t.Errorf("Expected Record not found error and getting : %v", err)
 			}
-			client, err := createTestClient(tx)
+			client, _, err := createTestClient(tx)
 			if err != nil {
 				t.Errorf("Error on creating testing client : %v", err)
 			}

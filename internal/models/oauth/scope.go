@@ -1,6 +1,9 @@
 package oauth
 
-import "github.com/lwinmgmg/user-go/internal/models"
+import (
+	"github.com/lwinmgmg/user-go/internal/models"
+	"gorm.io/gorm"
+)
 
 type ScopeLevel string
 
@@ -19,4 +22,19 @@ type Scope struct {
 
 func (cs *Scope) TableName() string {
 	return models.ComputeTableName("scope")
+}
+
+func GetScopesByClientTID(clientTId uint, tx *gorm.DB) ([]Scope, error) {
+	cs := []ClientScope{}
+	if err := tx.Model(&ClientScope{}).Find(&cs, "client_id=?", clientTId).Error; err != nil {
+		return nil, err
+	}
+	lenCs := len(cs)
+	sIds := make([]uint, 0, lenCs)
+	for _, v := range cs {
+		sIds = append(sIds, v.ScopeID)
+	}
+	scopes := make([]Scope, 0, lenCs)
+	err := tx.Model(&Scope{}).Find(&scopes, sIds).Error
+	return scopes, err
 }
