@@ -23,12 +23,14 @@ func main() {
 	client := &oauth.Client{}
 	scope := &oauth.Scope{}
 	cs := &oauth.ClientScope{}
+	acs := &oauth.ActiveClient{}
 	if err := db.Migrator().AutoMigrate(
 		user,
 		partner,
 		client,
 		scope,
 		cs,
+		acs,
 	); err != nil {
 		panic(err)
 	}

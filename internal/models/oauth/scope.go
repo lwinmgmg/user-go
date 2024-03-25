@@ -30,6 +30,9 @@ func GetScopesByClientTID(clientTId uint, tx *gorm.DB) ([]Scope, error) {
 		return nil, err
 	}
 	lenCs := len(cs)
+	if lenCs == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
 	sIds := make([]uint, 0, lenCs)
 	for _, v := range cs {
 		sIds = append(sIds, v.ScopeID)

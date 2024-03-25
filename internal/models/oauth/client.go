@@ -23,7 +23,7 @@ func (cs *Client) TableName() string {
 
 func GetClientByCId(cid string, tx *gorm.DB) (*Client, error) {
 	client := &Client{}
-	if err := tx.Model(&Client{}).First(client, "client_id=?", cid).Error; err != nil {
+	if err := tx.Model(client).First(client, "client_id=?", cid).Error; err != nil {
 		return nil, err
 	}
 	return client, nil

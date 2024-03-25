@@ -45,6 +45,12 @@ func createTestClient(tx *gorm.DB) (*oauth.Client, *models.User, error) {
 	if err := tx.Create(&scope).Error; err != nil {
 		return nil, nil, err
 	}
+	if err := tx.Create(&oauth.ClientScope{
+		ClientID: client.ID,
+		ScopeID:  scope.ID,
+	}).Error; err != nil {
+		return nil, nil, err
+	}
 	return &client, user, err
 }
 

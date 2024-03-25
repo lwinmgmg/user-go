@@ -40,6 +40,12 @@ func createTestClientUser(tx *gorm.DB) (*oauth.Client, *models.User, error) {
 	if err := tx.Create(&scope).Error; err != nil {
 		return nil, nil, err
 	}
+	if err := tx.Create(&oauth.ClientScope{
+		ClientID: client.ID,
+		ScopeID:  scope.ID,
+	}).Error; err != nil {
+		return nil, nil, err
+	}
 	return &client, user, err
 }
 func TestGenerateThirdPartyTkn(t *testing.T) {
@@ -54,27 +60,38 @@ func TestGenerateThirdPartyTkn(t *testing.T) {
 	ctrl := controller.NewContoller(settings)
 	db.Transaction(func(tx *gorm.DB) error {
 		ctrl.RoDb = tx
+		ctrl.Db = tx
 		client, user, err := createTestClientUser(tx)
 		if err != nil {
 			t.Errorf("Error on creating client,user : %v", err)
 		}
-		tptyReq := controller.ThirdpartyTokenRequest{
-			Code:        "12345",
-			ClientID:    client.ClientID,
-			Scopes:      []string{"ReadUser"},
-			RedirectUrl: "http://localhost",
-		}
-		loginTkn, err := ctrl.GenerateThirdPartyToken("no_user", tptyReq)
+		ClientID := client.ClientID
+		Scopes := []string{"ReadUser"}
+		RedirectUrl := "http://localhost"
+		loginTkn, err := ctrl.GenerateThirdPartyToken("no_user", ClientID, RedirectUrl, Scopes...)
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			t.Errorf("Expected %v, getting %v", gorm.ErrRecordNotFound, err)
 		}
-		loginTkn, err = ctrl.GenerateThirdPartyToken(user.Code, tptyReq)
+		loginTkn, err = ctrl.GenerateThirdPartyToken(user.Code, ClientID, RedirectUrl, Scopes...)
 		if err != nil {
 			t.Errorf("Error on generating third party token, %v", err)
 			return err
 		}
 		if loginTkn.TokenType != controller.BEARER {
 			assert.Equal(t, loginTkn.TokenType, controller.BEARER, "Expected Bearer Token")
+		}
+		if loginTkn.UserCode != user.Code {
+			assert.Equal(t, user.Code, loginTkn.UserCode, "Miss matched userCode")
+		}
+		Scopes = []string{}
+		_, err = ctrl.GenerateThirdPartyToken(user.Code, ClientID, RedirectUrl, Scopes...)
+		if !errors.Is(err, controller.ErrNoScope) {
+			t.Errorf("Expected %v, getting %v", controller.ErrNoScope, err)
+		}
+		Scopes = []string{"No Record"}
+		_, err = ctrl.GenerateThirdPartyToken(user.Code, ClientID, RedirectUrl, Scopes...)
+		if !errors.Is(err, controller.ErrUnauthorizedScope) {
+			t.Errorf("Expected %v, getting %v", controller.ErrUnauthorizedScope, err)
 		}
 		return errors.New("to_roll_back")
 	})

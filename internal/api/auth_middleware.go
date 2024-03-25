@@ -84,13 +84,13 @@ func (apiCtrl *ApiCtrl) AuthMiddleware(ctx *gin.Context) {
 			panic(middlewares.NewPanic(http.StatusUnauthorized, 4, "Authorization Required!", err))
 		}
 		fTkn := formatRedisToken(token)
-		if err := apiCtrl.RedisCtrl.SetKey(fTkn, subStr, time.Second*time.Duration(apiCtrl.Settings.JwtService.CacheDuration)); err != nil {
+		if err := apiCtrl.RedisCtrl.SetKey(fTkn, subStr, time.Second*time.Duration(apiCtrl.Setting.JwtService.CacheDuration)); err != nil {
 			slog.Error(fmt.Sprintf("Can't set jwt cache in redis %v", err))
 		}
-		if err := apiCtrl.RedisCtrl.SetKey(DelFormatReditToken(user.Code), fTkn, time.Second*time.Duration(apiCtrl.Settings.JwtService.CacheDuration)); err != nil {
+		if err := apiCtrl.RedisCtrl.SetKey(DelFormatReditToken(user.Code), fTkn, time.Second*time.Duration(apiCtrl.Setting.JwtService.CacheDuration)); err != nil {
 			slog.Error(fmt.Sprintf("Can't set jwt cache in redis %v", err))
 		}
-		formattedKey := services.FormatJwtKey(user.Username, user.Code, string(user.Password), apiCtrl.Settings.JwtService.Key)
+		formattedKey := services.FormatJwtKey(user.Username, user.Code, string(user.Password), apiCtrl.Setting.JwtService.Key)
 		return []byte(formattedKey), nil
 	}); err != nil {
 		panic(middlewares.NewPanic(http.StatusUnauthorized, 5, "Authorization Required!", err))
