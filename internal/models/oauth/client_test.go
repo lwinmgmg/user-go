@@ -12,6 +12,10 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	TestScopeName = "ReadUser"
+)
+
 func TestClientTableName(t *testing.T) {
 	client := oauth.Client{}
 	if client.TableName() != models.ComputeTableName("client") {
@@ -38,7 +42,7 @@ func createTestClient(tx *gorm.DB) (*oauth.Client, *models.User, error) {
 		return nil, nil, err
 	}
 	scope := oauth.Scope{
-		Name:        "ReadUser",
+		Name:        TestScopeName,
 		Description: "Read the user info",
 		Level:       oauth.SL1,
 	}

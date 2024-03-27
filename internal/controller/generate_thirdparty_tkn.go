@@ -28,14 +28,15 @@ func (ctrl *Controller) GenerateThirdPartyToken(userCode, clientId, redirectUrl 
 	}
 	defer func() {
 		if err == nil {
-			ac := &oauth.ActiveClient{
-				UserID:   user.ID,
-				ClientID: client.ID,
-			}
-			err = ctrl.RoDb.Model(ac).Where(ac).First(ac).Error
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				err = ctrl.Db.Model(ac).Save(ac).Error
-			}
+			err = ctrl.Db.Transaction(
+				func(tx *gorm.DB) error {
+					ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, tx)
+					if err != nil {
+						return err
+					}
+					return oauth.CreateActiveClientScope(ac.ID, tx, inputScopes...)
+				},
+			)
 		}
 	}()
 	if redirectUrl != client.RedirectUrl {
