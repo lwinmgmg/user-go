@@ -52,8 +52,8 @@ func main() {
 	apiCtrl := api.NewApiCtrl(*controller.NewContoller(settings))
 	apiCtrl.RegisterRoutes(app.Group("/user"))
 	// Graphql
-	app.Handle("GET", "/graphql", playgroundHandler("Graph QL UI", "/graphql"))
-	app.Handle("POST", "/graphql", graphqlHandler(&apiCtrl.Controller))
+	// app.Handle("GET", "/graphql", playgroundHandler("Graph QL UI", "/graphql"))
+	// app.Handle("POST", "/graphql", graphqlHandler(&apiCtrl.Controller))
 
 	app.Run(fmt.Sprintf("%v:%v", settings.HttpServer.Host, settings.HttpServer.Port))
 }

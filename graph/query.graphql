@@ -1,0 +1,7 @@
+type Query{
+    partners: [Partner!]!
+    partner(id: Int!): Partner!
+    partnerF: [Partner!]!
+    users: [User!]!
+    user(id: Int!): User!
+}

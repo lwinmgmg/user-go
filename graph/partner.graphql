@@ -1,0 +1,10 @@
+type Partner{
+    id: Int!
+    firstName: String!
+    lastName: String
+    email: String!
+    phone: String!
+    isEmailConfirmed: Boolean!
+    isPhoneConfirmed: Boolean!
+    code: String!
+}

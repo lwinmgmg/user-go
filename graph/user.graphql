@@ -1,0 +1,10 @@
+type User{
+    id: Int!
+    code: String!
+    username: String!
+    password: String!
+    partnerId: Int!
+    partner: Partner!
+    otpUrl: String
+    isAuthenticator: Boolean!
+}
