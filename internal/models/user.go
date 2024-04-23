@@ -163,3 +163,14 @@ func CreateTestUser(username, password string, tx *gorm.DB) (*User, error) {
 	}
 	return &user, nil
 }
+
+func GetUsers(tx *gorm.DB) (users []User, err error) {
+	err = tx.Model(&User{}).Find(&users).Error
+	return
+}
+
+func GetUserById(id uint, tx *gorm.DB) (user *User, err error) {
+	user = &User{}
+	err = tx.Model(user).First(user, id).Error
+	return
+}

@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"slices"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/lwinmgmg/user-go/internal/models"
@@ -13,6 +14,10 @@ import (
 
 // Here is the doc string
 func (ctrl *Controller) CheckThirdPartyTkn(tkn string) (tknSubject jwtctrl.ThirdPartySubject, err error) {
+	if subStr, err := ctrl.RedisCtrl.GetKey(services.FormatThirdpartyTkn(tkn)); err == nil {
+		err := json.Unmarshal([]byte(subStr), &tknSubject)
+		return tknSubject, err
+	}
 	_, err = ctrl.JwtCtrl.Validate(tkn, func(c jwt.Claims, t *jwt.Token) (any, error) {
 		subStr, err := c.GetSubject()
 		if err != nil {
@@ -35,6 +40,17 @@ func (ctrl *Controller) CheckThirdPartyTkn(tkn string) (tknSubject jwtctrl.Third
 		}
 		scopes, err := oauth.GetAcsByUserClientId(ac.ID, ctrl.RoDb)
 		if err != nil {
+			return nil, err
+		}
+		expTime, err := c.GetExpirationTime()
+		nowTime := time.Now().UTC()
+		if err != nil {
+			return nil, err
+		}
+		if nowTime.After(expTime.UTC()) {
+			return nil, jwt.ErrTokenExpired
+		}
+		if err := ctrl.RedisCtrl.SetKey(services.FormatThirdpartyTkn(tkn), subStr, expTime.UTC().Sub(nowTime)); err != nil {
 			return nil, err
 		}
 		for _, scope := range scopes {

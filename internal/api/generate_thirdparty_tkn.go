@@ -24,11 +24,13 @@ func (apiCtrl *ApiCtrl) GenerateThirdPartyToken(ctx *gin.Context) {
 		panic(middlewares.NewPanic(http.StatusUnprocessableEntity, 1, "Wrong data format", err))
 	}
 	if resp, err := apiCtrl.Controller.GenerateThirdPartyToken(sub.UserID, data.ClientID, data.RedirectUrl, data.Scopes...); err != nil {
-		panic(middlewares.NewPanic(http.StatusBadRequest, 0, "Failed to enable Authenticator (Unknown)", err))
-	} else if errors.Is(err, controller.ErrNoScope) {
-		panic(middlewares.NewPanic(http.StatusNotFound, 0, "No Scope found", err))
-	} else if errors.Is(err, controller.ErrUnauthorizedScope) {
-		panic(middlewares.NewPanic(http.StatusUnauthorized, 0, "No Authorized Scopes", err))
+		if errors.Is(err, controller.ErrNoScope) {
+			panic(middlewares.NewPanic(http.StatusNotFound, 0, "No Scope found", err))
+		}
+		if errors.Is(err, controller.ErrUnauthorizedScope) {
+			panic(middlewares.NewPanic(http.StatusUnauthorized, 0, "No Authorized Scopes", err))
+		}
+		panic(middlewares.NewPanic(http.StatusBadRequest, 0, "Failed to generate thirdparty token", err))
 	} else {
 		ctx.JSON(http.StatusOK, resp)
 	}

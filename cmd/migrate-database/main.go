@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 
+	migrateme "github.com/lwinmgmg/user-go/cmd/migrate-database/migrate-me"
 	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
 	"github.com/lwinmgmg/user-go/internal/services"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -25,18 +27,28 @@ func main() {
 	cs := &oauth.ClientScope{}
 	ac := &oauth.ActiveClient{}
 	acs := &oauth.ActiveClientScope{}
-	if err := db.Migrator().AutoMigrate(
-		user,
-		partner,
-		client,
-		scope,
-		cs,
-		ac,
-		acs,
+	if err := db.Transaction(
+		func(tx *gorm.DB) error {
+			if err := db.Migrator().AutoMigrate(
+				user,
+				partner,
+				client,
+				scope,
+				cs,
+				ac,
+				acs,
+			); err != nil {
+				return err
+			}
+			if err := db.Exec(fmt.Sprintf("CREATE SEQUENCE IF NOT EXISTS %v;", partner.GetSequence())).Error; err != nil {
+				return err
+			}
+			if err := db.Exec(fmt.Sprintf("CREATE SEQUENCE IF NOT EXISTS %v START WITH 100000;", user.GetSequence())).Error; err != nil {
+				return err
+			}
+			return migrateme.MigrateDefaultData(&settings, tx)
+		},
 	); err != nil {
 		panic(err)
 	}
-	// Creating sequence
-	db.Exec(fmt.Sprintf("CREATE SEQUENCE IF NOT EXISTS %v;", partner.GetSequence()))
-	db.Exec(fmt.Sprintf("CREATE SEQUENCE IF NOT EXISTS %v START WITH 100000;", user.GetSequence()))
 }

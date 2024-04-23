@@ -1,12 +1,15 @@
 package controller
 
 import (
+	"encoding/json"
 	"errors"
 	"slices"
+	"time"
 
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
 	"github.com/lwinmgmg/user-go/internal/services"
+	jwtctrl "github.com/lwinmgmg/user-go/pkg/jwt-ctrl"
 	"gorm.io/gorm"
 )
 
@@ -32,6 +35,17 @@ func (ctrl *Controller) GenerateThirdPartyToken(userCode, clientId, redirectUrl 
 				func(tx *gorm.DB) error {
 					ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, tx)
 					if err != nil {
+						return err
+					}
+					subStr, err := json.Marshal(jwtctrl.ThirdPartySubject{
+						ClientID: clientId,
+						UserID:   userCode,
+						Scopes:   inputScopes,
+					})
+					if err != nil {
+						return err
+					}
+					if err := ctrl.RedisCtrl.SetKey(services.FormatThirdpartyTkn(loginTkn.AccessToken), string(subStr), time.Second*time.Duration(ctrl.Setting.JwtService.LoginDuration)); err != nil {
 						return err
 					}
 					return oauth.CreateActiveClientScope(ac.ID, tx, inputScopes...)

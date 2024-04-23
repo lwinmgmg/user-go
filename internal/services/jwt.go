@@ -28,3 +28,7 @@ func GenerateThirdpartyJwt(userCode, clientId, formattedKey string, settings *en
 		formattedKey, time.Second*time.Duration(settings.JwtService.LoginDuration), settings.Service,
 	)
 }
+
+func FormatThirdpartyTkn(tkn string) string {
+	return fmt.Sprintf("thirdparty:%v", tkn)
+}

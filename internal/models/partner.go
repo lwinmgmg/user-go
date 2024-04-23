@@ -79,3 +79,14 @@ func (partner *Partner) SetPhoneConfirm(input bool, tx *gorm.DB) error {
 	partner.IsPhoneConfirmed = input
 	return tx.Save(partner).Error
 }
+
+func GetPartners(tx *gorm.DB) (partners []Partner, err error) {
+	err = tx.Model(&Partner{}).Find(&partners).Error
+	return
+}
+
+func GetPartnerByID(id uint, tx *gorm.DB) (partner *Partner, err error) {
+	partner = &Partner{}
+	err = tx.Model(partner).First(partner, id).Error
+	return
+}
