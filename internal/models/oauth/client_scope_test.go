@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
 	"github.com/lwinmgmg/user-go/internal/services"
+	"github.com/lwinmgmg/user-go/test"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -21,10 +21,7 @@ func TestClientScopeTableName(t *testing.T) {
 }
 
 func TestCheckClientScope(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Errorf("Error on getting settings : %v", err)
-	}
+	settings := test.GetTestEnv()
 	db, err := services.GetPsql(settings.Db)
 	if err != nil {
 		t.Error(err.Error())

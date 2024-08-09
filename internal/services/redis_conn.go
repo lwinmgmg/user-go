@@ -8,7 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func GetRedisClient(rdConf env.RedisServer) (*redis.Client, error) {
+func GetRedisClient(rdConf *env.RedisServer) (*redis.Client, error) {
 	rdClient := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%v:%v", rdConf.Host, rdConf.Port),
 		Username: rdConf.User,
@@ -17,4 +17,8 @@ func GetRedisClient(rdConf env.RedisServer) (*redis.Client, error) {
 	})
 	rdStatus := rdClient.Ping(context.Background())
 	return rdClient, rdStatus.Err()
+}
+
+func FormatThirdpartyCode(val, client_id string) string {
+	return fmt.Sprintf("thirdpartyCode:%v:%v", client_id, val)
 }

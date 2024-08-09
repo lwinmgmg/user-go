@@ -49,25 +49,25 @@ type JwtService struct {
 }
 
 type Settings struct {
-	Service          string      `yaml:"service"`
-	HttpServer       Server      `yaml:"http_server"`
-	GrpcServer       Server      `yaml:"grpc_server"`
-	Db               DbServer    `yaml:"db"`
-	RoDb             DbServer    `yaml:"ro_db"`
-	Redis            RedisServer `yaml:"redis"`
-	LoginEmailServer EmailServer `yaml:"login_mail_server"`
-	OtpService       OtpService  `yaml:"otp"`
-	JwtService       JwtService  `yaml:"jwt"`
+	Service          string       `yaml:"service"`
+	HttpServer       *Server      `yaml:"http_server"`
+	GrpcServer       *Server      `yaml:"grpc_server"`
+	Db               *DbServer    `yaml:"db"`
+	RoDb             *DbServer    `yaml:"ro_db"`
+	Redis            *RedisServer `yaml:"redis"`
+	LoginEmailServer *EmailServer `yaml:"login_mail_server"`
+	OtpService       *OtpService  `yaml:"otp"`
+	JwtService       *JwtService  `yaml:"jwt"`
 }
 
-func LoadSettings() (Settings, error) {
+func LoadSettings() (*Settings, error) {
 	settings := Settings{}
 	path, ok := os.LookupEnv("USER_SETTING_PATH")
 	if !ok {
 		path = "settings.yaml"
 	}
 	if err := yamlfile.LoadFile(path, &settings); err != nil {
-		return settings, err
+		return &settings, err
 	}
-	return settings, nil
+	return &settings, nil
 }

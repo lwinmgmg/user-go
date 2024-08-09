@@ -4,10 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
 	"github.com/lwinmgmg/user-go/internal/services"
+	"github.com/lwinmgmg/user-go/pkg/hashing"
+	"github.com/lwinmgmg/user-go/test"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -22,10 +23,7 @@ func TestActiveClientScopeTableName(t *testing.T) {
 
 // Test cases for GetAcsByUserId function
 func TestGetAcsByUserClientId(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Errorf("Error on getting settings : %v", err)
-	}
+	settings := test.GetTestEnv()
 	db, err := services.GetPsql(settings.Db)
 	if err != nil {
 		t.Error(err.Error())
@@ -36,7 +34,8 @@ func TestGetAcsByUserClientId(t *testing.T) {
 			t.Errorf("Error on creating test client and user")
 			return err
 		}
-		ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, tx)
+		code := hashing.NewUuid4()
+		ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, code, tx)
 		if err != nil {
 			t.Errorf("Error on getting active client : %v", err)
 			return err
@@ -61,10 +60,7 @@ func TestGetAcsByUserClientId(t *testing.T) {
 
 // Test case for CreateActiveClientScope
 func TestCreateActiveClientScope(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Errorf("Error on getting settings : %v", err)
-	}
+	settings := test.GetTestEnv()
 	db, err := services.GetPsql(settings.Db)
 	if err != nil {
 		t.Error(err.Error())
@@ -75,7 +71,8 @@ func TestCreateActiveClientScope(t *testing.T) {
 			t.Errorf("Error on creating test client : %v", err)
 			return err
 		}
-		ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, tx)
+		code := hashing.NewUuid4()
+		ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, code, tx)
 		if err != nil {
 			t.Errorf("Error on creating active client : %v", ac)
 			return err

@@ -3,15 +3,12 @@ package services_test
 import (
 	"testing"
 
-	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/services"
+	"github.com/lwinmgmg/user-go/test"
 )
 
 func TestPgConnection(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Errorf("Error on getting settings : %v", err)
-	}
+	settings := test.GetTestEnv()
 	conn, err := services.GetPsql(settings.Db)
 	if err != nil {
 		t.Errorf("Error on psql connection : %v", err)

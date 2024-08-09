@@ -4,12 +4,12 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/controller"
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
 	"github.com/lwinmgmg/user-go/internal/services"
 	"github.com/lwinmgmg/user-go/pkg/hashing"
+	"github.com/lwinmgmg/user-go/test"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -49,10 +49,7 @@ func createTestClientUser(tx *gorm.DB) (*oauth.Client, *models.User, error) {
 	return &client, user, err
 }
 func TestGenerateThirdPartyTkn(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Errorf("Error on getting settings : %v", err)
-	}
+	settings := test.GetTestEnv()
 	db, err := services.GetPsql(settings.Db)
 	if err != nil {
 		t.Error(err.Error())
@@ -68,11 +65,10 @@ func TestGenerateThirdPartyTkn(t *testing.T) {
 		ClientID := client.ClientID
 		Scopes := []string{"ReadUser"}
 		RedirectUrl := "http://localhost"
-		loginTkn, err := ctrl.GenerateThirdPartyToken("no_user", ClientID, RedirectUrl, Scopes...)
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
+		if _, _, err = ctrl.GenerateThirdPartyToken("no_user", ClientID, RedirectUrl, Scopes...); !errors.Is(err, gorm.ErrRecordNotFound) {
 			t.Errorf("Expected %v, getting %v", gorm.ErrRecordNotFound, err)
 		}
-		loginTkn, err = ctrl.GenerateThirdPartyToken(user.Code, ClientID, RedirectUrl, Scopes...)
+		loginTkn, _, err := ctrl.GenerateThirdPartyToken(user.Code, ClientID, RedirectUrl, Scopes...)
 		if err != nil {
 			t.Errorf("Error on generating third party token, %v", err)
 			return err
@@ -84,13 +80,11 @@ func TestGenerateThirdPartyTkn(t *testing.T) {
 			assert.Equal(t, user.Code, loginTkn.UserCode, "Miss matched userCode")
 		}
 		Scopes = []string{}
-		_, err = ctrl.GenerateThirdPartyToken(user.Code, ClientID, RedirectUrl, Scopes...)
-		if !errors.Is(err, controller.ErrNoScope) {
+		if _, _, err = ctrl.GenerateThirdPartyToken(user.Code, ClientID, RedirectUrl, Scopes...); !errors.Is(err, controller.ErrNoScope) {
 			t.Errorf("Expected %v, getting %v", controller.ErrNoScope, err)
 		}
 		Scopes = []string{"No Record"}
-		_, err = ctrl.GenerateThirdPartyToken(user.Code, ClientID, RedirectUrl, Scopes...)
-		if !errors.Is(err, controller.ErrUnauthorizedScope) {
+		if _, _, err = ctrl.GenerateThirdPartyToken(user.Code, ClientID, RedirectUrl, Scopes...); !errors.Is(err, controller.ErrUnauthorizedScope) {
 			t.Errorf("Expected %v, getting %v", controller.ErrUnauthorizedScope, err)
 		}
 		return errors.New("to_roll_back")

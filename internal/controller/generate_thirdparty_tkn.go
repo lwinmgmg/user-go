@@ -9,6 +9,7 @@ import (
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
 	"github.com/lwinmgmg/user-go/internal/services"
+	"github.com/lwinmgmg/user-go/pkg/hashing"
 	jwtctrl "github.com/lwinmgmg/user-go/pkg/jwt-ctrl"
 	"gorm.io/gorm"
 )
@@ -19,8 +20,9 @@ var (
 	ErrMissMatchRUrl     = errors.New("missmatch_rurl")
 )
 
-func (ctrl *Controller) GenerateThirdPartyToken(userCode, clientId, redirectUrl string, inputScopes ...string) (loginTkn LoginToken, err error) {
+func (ctrl *Controller) GenerateThirdPartyToken(userCode, clientId, redirectUrl string, inputScopes ...string) (loginTkn LoginToken, code string, err error) {
 	loginTkn.TokenType = BEARER
+	code = hashing.NewUuid4()
 	user := models.User{}
 	if err = user.GetUserByCode(userCode, ctrl.RoDb); err != nil {
 		return
@@ -33,7 +35,7 @@ func (ctrl *Controller) GenerateThirdPartyToken(userCode, clientId, redirectUrl 
 		if err == nil {
 			err = ctrl.Db.Transaction(
 				func(tx *gorm.DB) error {
-					ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, tx)
+					ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, code, tx)
 					if err != nil {
 						return err
 					}
@@ -57,6 +59,7 @@ func (ctrl *Controller) GenerateThirdPartyToken(userCode, clientId, redirectUrl 
 		err = ErrMissMatchRUrl
 		return
 	}
+
 	scopes, err := oauth.GetScopesByClientTID(client.ID, ctrl.RoDb)
 	if err != nil {
 		return
@@ -84,5 +87,12 @@ func (ctrl *Controller) GenerateThirdPartyToken(userCode, clientId, redirectUrl 
 		return
 	}
 	loginTkn.UserCode = userCode
+	value, err := json.Marshal(loginTkn)
+	if err != nil {
+		return
+	}
+	if err = ctrl.RedisCtrl.SetKey(services.FormatThirdpartyCode(code, clientId), string(value), 5*time.Minute); err != nil {
+		return
+	}
 	return
 }

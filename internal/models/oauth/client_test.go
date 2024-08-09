@@ -4,11 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
 	"github.com/lwinmgmg/user-go/internal/services"
 	"github.com/lwinmgmg/user-go/pkg/hashing"
+	"github.com/lwinmgmg/user-go/test"
 	"gorm.io/gorm"
 )
 
@@ -59,10 +59,7 @@ func createTestClient(tx *gorm.DB) (*oauth.Client, *models.User, error) {
 }
 
 func TestGetClientByCid(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Error(err.Error())
-	}
+	settings := test.GetTestEnv()
 	db, err := services.GetPsql(settings.Db)
 	if err != nil {
 		t.Error(err.Error())

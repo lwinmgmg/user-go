@@ -6,9 +6,9 @@ import (
 )
 
 type ActiveClientScope struct {
-	ActiveClientID uint
+	ActiveClientID uint `gorm:"index;"`
 	ActiveClient   ActiveClient
-	ScopeID        uint
+	ScopeID        uint `gorm:"index;"`
 	Scope          Scope
 }
 
@@ -41,12 +41,12 @@ func CreateActiveClientScope(activeClientId uint, tx *gorm.DB, scopes ...string)
 	if err := tx.Model(&Scope{}).Find(&scopeList, "name in ?", scopes).Error; err != nil {
 		return err
 	}
-	csList := make([]ActiveClientScope, 0, scopeCount)
+	acsList := make([]ActiveClientScope, 0, scopeCount)
 	for _, v := range scopeList {
-		csList = append(csList, ActiveClientScope{
+		acsList = append(acsList, ActiveClientScope{
 			ActiveClientID: activeClientId,
 			ScopeID:        v.ID,
 		})
 	}
-	return tx.Model(&ActiveClientScope{}).Create(&csList).Error
+	return tx.Model(&ActiveClientScope{}).Create(&acsList).Error
 }

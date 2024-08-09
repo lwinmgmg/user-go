@@ -10,7 +10,7 @@ import (
 
 var (
 	uuidCode              *uuid_code.UuidCode = uuid_code.NewDefaultUuidCode()
-	Env                   env.Settings
+	Env                   *env.Settings
 	ErrRecordAlreadyExist = errors.New("exist")
 	ErrInvalid            = errors.New("invalid")
 )

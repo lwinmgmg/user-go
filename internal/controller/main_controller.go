@@ -22,7 +22,7 @@ type Controller struct {
 	Setting      *env.Settings
 }
 
-func NewContoller(settings env.Settings) *Controller {
+func NewContoller(settings *env.Settings) *Controller {
 	db, err := services.GetPsql(settings.Db)
 	if err != nil {
 		panic(err)
@@ -45,6 +45,6 @@ func NewContoller(settings env.Settings) *Controller {
 			Issuer: settings.Service,
 		}, otpctrl.STANDARD_OPT_DURATION, settings.OtpService.Skew),
 		JwtCtrl: jwtctrl.NewJwtCtrl(settings.Service),
-		Setting: &settings,
+		Setting: settings,
 	}
 }

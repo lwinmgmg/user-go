@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
 	"github.com/lwinmgmg/user-go/internal/services"
 	"github.com/lwinmgmg/user-go/pkg/hashing"
 	jwtctrl "github.com/lwinmgmg/user-go/pkg/jwt-ctrl"
+	"github.com/lwinmgmg/user-go/test"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -39,10 +39,7 @@ func createTestClientUser(tx *gorm.DB) (*oauth.Client, *models.User, error) {
 }
 
 func TestGenerateUserJwt(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Errorf("Error on getting settings : %v", err)
-	}
+	settings := test.GetTestEnv()
 	db, err := services.GetPsql(settings.Db)
 	if err != nil {
 		t.Error(err.Error())
@@ -59,7 +56,7 @@ func TestGenerateUserJwt(t *testing.T) {
 		// Get formatted key
 		formattedKey := services.FormatJwtKey(user.Username, user.Code, string(user.Password), settings.JwtService.Key)
 		// Generate token
-		jwtStr, err := services.GenerateUserLoginJwt(user.Code, formattedKey, &settings, jwtCtrl)
+		jwtStr, err := services.GenerateUserLoginJwt(user.Code, formattedKey, settings, jwtCtrl)
 		if err != nil {
 			t.Errorf("Error on generating jwt str : %v", err)
 			return err
@@ -103,7 +100,7 @@ func TestGenerateUserJwt(t *testing.T) {
 		}
 		// Validate with timeout token
 		settings.JwtService.LoginDuration = 0
-		jwtStr, err = services.GenerateUserLoginJwt(user.Code, formattedKey, &settings, jwtCtrl)
+		jwtStr, err = services.GenerateUserLoginJwt(user.Code, formattedKey, settings, jwtCtrl)
 		if err != nil {
 			t.Errorf("Error on generating 0 duration jwt str : %v", err)
 			return err
@@ -122,10 +119,7 @@ func TestGenerateUserJwt(t *testing.T) {
 }
 
 func TestGenerateThirdpartyJwt(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Errorf("Error on getting settings : %v", err)
-	}
+	settings := test.GetTestEnv()
 	db, err := services.GetPsql(settings.Db)
 	if err != nil {
 		t.Error(err.Error())
@@ -142,7 +136,7 @@ func TestGenerateThirdpartyJwt(t *testing.T) {
 		// Get formatted key
 		formattedKey := services.FormatJwtKey(client.ClientID, user.Code, client.Secret, settings.JwtService.Key)
 		// Generate token
-		jwtStr, err := services.GenerateThirdpartyJwt(user.Code, client.ClientID, formattedKey, &settings, jwtCtrl, "UserRead")
+		jwtStr, err := services.GenerateThirdpartyJwt(user.Code, client.ClientID, formattedKey, settings, jwtCtrl, "UserRead")
 		if err != nil {
 			t.Errorf("Error on generating jwt str : %v", err)
 			return err
@@ -192,7 +186,7 @@ func TestGenerateThirdpartyJwt(t *testing.T) {
 		}
 		// Validate with timeout token
 		settings.JwtService.LoginDuration = 0
-		jwtStr, err = services.GenerateThirdpartyJwt(user.Code, client.ClientID, formattedKey, &settings, jwtCtrl, "UserRead")
+		jwtStr, err = services.GenerateThirdpartyJwt(user.Code, client.ClientID, formattedKey, settings, jwtCtrl, "UserRead")
 		if err != nil {
 			t.Errorf("Error on generating 0 duration jwt str : %v", err)
 			return err

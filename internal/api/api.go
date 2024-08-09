@@ -1,8 +1,11 @@
 package api
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/controller"
+	"github.com/lwinmgmg/user-go/pkg/middlewares"
 )
 
 type ApiCtrl struct {
@@ -24,11 +27,26 @@ func (apiCtrl *ApiCtrl) RegisterRoutes(router gin.IRouter) {
 	userRouter.GET("/enable_2fa", apiCtrl.AuthMiddleware, apiCtrl.Enable2FA)
 	userRouter.GET("/enable_authenticator", apiCtrl.AuthMiddleware, apiCtrl.EnableAuthenticator)
 	userRouter.POST("/oauth/thirdparty", apiCtrl.AuthMiddleware, apiCtrl.GenerateThirdPartyToken)
-	userRouter.POST("/oauth/check", apiCtrl.CheckThirdPartyTkn)
+	userRouter.POST("/oauth/thirdparty/check", apiCtrl.CheckThirdPartyTkn)
+	userRouter.POST("/oauth/thirdparty/get", apiCtrl.GetThirdPartyToken)
 }
 
 func NewApiCtrl(ctrl controller.Controller) *ApiCtrl {
 	return &ApiCtrl{
 		Controller: ctrl,
 	}
+}
+
+func SetupRouter(settings *env.Settings) *gin.Engine {
+	app := gin.New()
+	corsConf := cors.Config{
+		AllowAllOrigins: true,
+		AllowHeaders: []string{
+			"content-type",
+		},
+	}
+	app.Use(middlewares.LoggerMiddleware, gin.CustomRecovery(middlewares.RecoveryMiddleware), cors.New(corsConf))
+	apiCtrl := NewApiCtrl(*controller.NewContoller(settings))
+	apiCtrl.RegisterRoutes(app.Group("/user"))
+	return app
 }

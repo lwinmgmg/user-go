@@ -4,10 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/models"
 	"github.com/lwinmgmg/user-go/internal/models/oauth"
 	"github.com/lwinmgmg/user-go/internal/services"
+	"github.com/lwinmgmg/user-go/pkg/hashing"
+	"github.com/lwinmgmg/user-go/test"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -21,10 +22,7 @@ func TestActiveClientTableName(t *testing.T) {
 }
 
 func TestGetActiveClientCreateIfNotExist(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Errorf("Error on getting settings : %v", err)
-	}
+	settings := test.GetTestEnv()
 	db, err := services.GetPsql(settings.Db)
 	if err != nil {
 		t.Error(err.Error())
@@ -35,10 +33,11 @@ func TestGetActiveClientCreateIfNotExist(t *testing.T) {
 			t.Errorf("Getting error on creating test client user : %v", err)
 			return err
 		}
-		if _, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, tx); err != nil {
+		code := hashing.NewUuid4()
+		if _, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, code, tx); err != nil {
 			t.Errorf("Error on creating acs : %v", err)
 		}
-		if _, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, tx); err != nil {
+		if _, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, code, tx); err != nil {
 			t.Errorf("Error on getting existing acs : %v", err)
 		}
 		var count int64 = 0

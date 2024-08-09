@@ -34,7 +34,7 @@ func (ctrl *Controller) CheckThirdPartyTkn(tkn string) (tknSubject jwtctrl.Third
 		if err := user.GetUserByCode(tknSubject.UserID, ctrl.RoDb); err != nil {
 			return nil, err
 		}
-		ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, ctrl.RoDb)
+		ac, err := oauth.GetActiveClient(user.ID, client.ID, ctrl.RoDb)
 		if err != nil {
 			return nil, err
 		}

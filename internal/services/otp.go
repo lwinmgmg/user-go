@@ -33,9 +33,10 @@ type OtpValue struct {
 
 func EncodeOtpValue(otpUrl, code string, otpType OtpConfirmType, value map[string]any) (string, error) {
 	otpValue := OtpValue{
-		Url:  otpUrl,
-		Code: code,
-		Type: otpType,
+		Url:   otpUrl,
+		Code:  code,
+		Type:  otpType,
+		Value: value,
 	}
 	val, err := json.Marshal(otpValue)
 	return string(val), err

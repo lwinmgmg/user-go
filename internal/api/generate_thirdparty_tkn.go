@@ -12,6 +12,7 @@ import (
 
 type ThirdpartyTokenRequest struct {
 	Code        string   `form:"code"`
+	Signature   string   `form:"sig"`
 	ClientID    string   `form:"cid" binding:"required,min=3"`
 	Scopes      []string `form:"scp"`
 	RedirectUrl string   `form:"rurl" binding:"required,min=3"`
@@ -23,7 +24,7 @@ func (apiCtrl *ApiCtrl) GenerateThirdPartyToken(ctx *gin.Context) {
 	if err := ctx.ShouldBind(data); err != nil {
 		panic(middlewares.NewPanic(http.StatusUnprocessableEntity, 1, "Wrong data format", err))
 	}
-	if resp, err := apiCtrl.Controller.GenerateThirdPartyToken(sub.UserID, data.ClientID, data.RedirectUrl, data.Scopes...); err != nil {
+	if _, code, err := apiCtrl.Controller.GenerateThirdPartyToken(sub.UserID, data.ClientID, data.RedirectUrl, data.Scopes...); err != nil {
 		if errors.Is(err, controller.ErrNoScope) {
 			panic(middlewares.NewPanic(http.StatusNotFound, 0, "No Scope found", err))
 		}
@@ -32,6 +33,7 @@ func (apiCtrl *ApiCtrl) GenerateThirdPartyToken(ctx *gin.Context) {
 		}
 		panic(middlewares.NewPanic(http.StatusBadRequest, 0, "Failed to generate thirdparty token", err))
 	} else {
-		ctx.JSON(http.StatusOK, resp)
+		data.Code = code
+		ctx.JSON(http.StatusOK, data)
 	}
 }

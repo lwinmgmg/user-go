@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetPsql(dbConf env.DbServer) (*gorm.DB, error) {
+func GetPsql(dbConf *env.DbServer) (*gorm.DB, error) {
 	var dsn string = fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=disable TimeZone=UTC",
 		dbConf.Host,
 		dbConf.Port,

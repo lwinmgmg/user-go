@@ -25,6 +25,7 @@ func (sender *MailService) getAuth() smtp.Auth {
 }
 
 func (sender *MailService) Send(message string, recipient []string) error {
+	slog.Info(fmt.Sprintf("Sending email to -> %v", recipient))
 	if !sender.Enable {
 		slog.Warn(fmt.Sprintf("Email server is not enable : To -> %v; Message -> %v", recipient, message))
 		return nil
@@ -37,7 +38,7 @@ func (sender *MailService) Send(message string, recipient []string) error {
 	return nil
 }
 
-func NewMailService(mailConf env.EmailServer) *MailService {
+func NewMailService(mailConf *env.EmailServer) *MailService {
 	return &MailService{
 		senderMail: mailConf.Email,
 		password:   mailConf.Password,

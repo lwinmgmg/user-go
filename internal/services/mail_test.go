@@ -3,15 +3,12 @@ package services_test
 import (
 	"testing"
 
-	"github.com/lwinmgmg/user-go/env"
 	"github.com/lwinmgmg/user-go/internal/services"
+	"github.com/lwinmgmg/user-go/test"
 )
 
 func TestNewMailService(t *testing.T) {
-	settings, err := env.LoadSettings()
-	if err != nil {
-		t.Errorf("Error on getting settings : %v", err)
-	}
+	settings := test.GetTestEnv()
 	disableServer := settings.LoginEmailServer
 	disableServer.Enable = false
 	svr := services.NewMailService(disableServer)
