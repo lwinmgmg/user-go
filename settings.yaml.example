@@ -10,14 +10,14 @@ db:
   port: 5432
   user: admin
   password: admin
-  db_name: user
+  db_name: user_go_test
   table_prefix: user
 ro_db:
   host: postgres
   port: 5432
   user: admin
   password: admin
-  db_name: user
+  db_name: user_go_test
   table_prefix: user
 redis:
   host: redis
