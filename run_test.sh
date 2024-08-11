@@ -1,2 +1,3 @@
 export USER_SETTING_PATH=$(pwd)/settings.yaml
+export GIN_MODE="release"
 go test -cover -coverprofile /tmp/c.out ./...

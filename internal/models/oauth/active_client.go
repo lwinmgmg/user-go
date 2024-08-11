@@ -21,17 +21,17 @@ func (ac *ActiveClient) TableName() string {
 }
 
 func GetActiveClientCreateIfNotExist(userId, clientId uint, refreshToken string, tx *gorm.DB) (*ActiveClient, error) {
-	acs := &ActiveClient{
-		UserID:       userId,
-		ClientID:     clientId,
-		RefreshToken: refreshToken,
+	activeClient := &ActiveClient{}
+	err := tx.Model(activeClient).First(activeClient, "user_id=? AND client_id=?", userId, clientId).Error
+	activeClient.RefreshToken = refreshToken
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		activeClient.ClientID = clientId
+		activeClient.UserID = userId
+		err = tx.Create(activeClient).Error
+	} else if err == nil {
+		err = tx.Updates(activeClient).Error
 	}
-	if err := tx.Model(&ActiveClient{}).First(acs, "user_id=? AND client_id=?", userId, clientId).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		if err := tx.Create(acs).Error; err != nil {
-			return acs, err
-		}
-	}
-	return acs, nil
+	return activeClient, err
 }
 
 func GetActiveClient(userId, clientId uint, tx *gorm.DB) (*ActiveClient, error) {

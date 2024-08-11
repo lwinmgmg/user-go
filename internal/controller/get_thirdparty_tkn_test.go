@@ -2,6 +2,7 @@ package controller_test
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/lwinmgmg/user-go/internal/controller"
@@ -31,11 +32,12 @@ func TestGetThirdPartyToken(t *testing.T) {
 			t.Error("Error on generating thirdparty tkn", err)
 			return err
 		}
-		tkn, err := ctrl.GetThirdPartyToken(code, client.ClientID, client.Secret)
+		tkn, err := ctrl.GetThirdPartyToken(code, user.Code, client.ClientID, client.Secret)
 		if err != nil {
 			t.Error("Error getting third party token", err)
 			return err
 		}
+		fmt.Println(oldTkn, tkn)
 		assert.Equal(t, oldTkn.AccessToken, tkn.AccessToken)
 		assert.Equal(t, oldTkn.SendOtpType, tkn.SendOtpType)
 		assert.Equal(t, oldTkn.TokenType, tkn.TokenType)

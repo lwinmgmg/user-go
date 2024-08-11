@@ -34,7 +34,8 @@ func TestGetActiveClientCreateIfNotExist(t *testing.T) {
 			return err
 		}
 		code := hashing.NewUuid4()
-		if _, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, code, tx); err != nil {
+		ac, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, code, tx)
+		if err != nil {
 			t.Errorf("Error on creating acs : %v", err)
 		}
 		if _, err := oauth.GetActiveClientCreateIfNotExist(user.ID, client.ID, code, tx); err != nil {
@@ -45,6 +46,7 @@ func TestGetActiveClientCreateIfNotExist(t *testing.T) {
 			t.Errorf("Error on getting active client count : %v", err)
 		}
 		assert.Equalf(t, int64(1), count, "Expected count = 1, getting %v", count)
+		assert.Equal(t, ac.RefreshToken, code, "Expected code are equal")
 		return errors.New("to_roll_back")
 	})
 }
