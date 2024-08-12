@@ -26,7 +26,7 @@ func (apiCtrl *ApiCtrl) RegisterRoutes(router gin.IRouter) {
 	userRouter.GET("/phone_confirm", apiCtrl.AuthMiddleware, apiCtrl.PhoneConfirm)
 	userRouter.GET("/enable_2fa", apiCtrl.AuthMiddleware, apiCtrl.Enable2FA)
 	userRouter.GET("/enable_authenticator", apiCtrl.AuthMiddleware, apiCtrl.EnableAuthenticator)
-	userRouter.POST("/oauth/thirdparty", apiCtrl.AuthMiddleware, apiCtrl.GenerateThirdPartyToken)
+	userRouter.POST("/oauth/thirdparty/generate", apiCtrl.AuthMiddleware, apiCtrl.GenerateThirdPartyToken)
 	userRouter.POST("/oauth/thirdparty/check", apiCtrl.CheckThirdPartyTkn)
 	userRouter.POST("/oauth/thirdparty/get", apiCtrl.GetThirdPartyToken)
 }

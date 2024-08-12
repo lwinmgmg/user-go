@@ -16,6 +16,7 @@ type ThirdpartyTokenRequest struct {
 	ClientID    string   `form:"cid" binding:"required,min=3"`
 	Scopes      []string `form:"scp"`
 	RedirectUrl string   `form:"rurl" binding:"required,min=3"`
+	UserID      string   `form:""`
 }
 
 func (apiCtrl *ApiCtrl) GenerateThirdPartyToken(ctx *gin.Context) {
@@ -34,6 +35,7 @@ func (apiCtrl *ApiCtrl) GenerateThirdPartyToken(ctx *gin.Context) {
 		panic(middlewares.NewPanic(http.StatusBadRequest, 0, "Failed to generate thirdparty token", err))
 	} else {
 		data.Code = code
+		data.UserID = sub.UserID
 		ctx.JSON(http.StatusOK, data)
 	}
 }
