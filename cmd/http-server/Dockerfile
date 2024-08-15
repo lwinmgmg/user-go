@@ -7,7 +7,15 @@ ARG WORKDIR_NAME=/build
 
 WORKDIR ${WORKDIR_NAME}
 
-COPY . ${WORKDIR_NAME}/.
+COPY cmd ${WORKDIR_NAME}/cmd/
+COPY env ${WORKDIR_NAME}/env/
+COPY internal ${WORKDIR_NAME}/internal/
+COPY pkg ${WORKDIR_NAME}/pkg/
+COPY test ${WORKDIR_NAME}/test/
+COPY graph ${WORKDIR_NAME}/graph/
+COPY go.mod ${WORKDIR_NAME}/.
+COPY go.sum ${WORKDIR_NAME}/.
+COPY tools.go ${WORKDIR_NAME}/.
 
 WORKDIR ${WORKDIR_NAME}/cmd/http-server
 
@@ -52,6 +60,6 @@ COPY --from=compiler --chown=${USER_USER}:${USER_USER} "${OUTPUT_DIR}/${DB_MIGRA
 # To save vendor package if they go unsupported
 COPY --from=compiler --chown=${USER_USER}:${USER_USER} "${WORKDIR_NAME}/vendor" "${USER_USER_HOME_DIR}/vendor"
 
-EXPOSE 3001
+EXPOSE 80
 
 CMD [ "user-go-http" ]

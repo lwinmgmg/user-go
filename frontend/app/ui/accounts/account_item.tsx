@@ -12,13 +12,17 @@ export default async function AccountItem({
     userCode: string,
     accessToken: string
 }){
-    const profile = await getProfile(accessToken);
-    return (
-        <div className="flex flex-row items-center h-20">
-            <Suspense>
-                <AccountItemName profile={profile} />
-            </Suspense>
-            <AccountItemLogout userCode={profile.userCode} />
-        </div>
-    );
+    try{
+        const profile = await getProfile(userCode, accessToken);
+        return (
+            <div className="flex flex-row items-center h-20">
+                <Suspense>
+                    <AccountItemName profile={profile} />
+                </Suspense>
+                <AccountItemLogout userCode={profile.userCode} />
+            </div>
+        );
+    }catch(err){
+        return null;
+    }
 }

@@ -1,0 +1,40 @@
+services:
+  # For api service
+  backend:
+    container_name: backend
+    depends_on:
+      - redis
+      - postgres
+    build:
+      context: .
+      dockerfile: cmd/http-server/Dockerfile
+    healthcheck:
+      test: curl localhost
+    ports:
+      - 3001:80
+    environment:
+      USER_SETTING_PATH: /etc/user/config/settings.yaml.example
+      GIN_MODE: release
+    volumes:
+      - ./settings.yaml.example:/etc/user/config/settings.yaml.example
+  frontend:
+    container_name: frontend
+    depends_on:
+      - backend
+    build:
+      context: ./frontend/.
+      dockerfile: Dockerfile
+    environment:
+      USER_BACKEND: http://backend
+    ports:
+      - 3000:80
+  redis:
+    container_name: redis
+    image: redis
+  postgres:
+    container_name: postgres
+    image: postgres:16.0-bookworm
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: user

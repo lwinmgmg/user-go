@@ -1,7 +1,7 @@
 service: LMM user service
 http_server:
   host: 0.0.0.0
-  port: 3001
+  port: 80
 grpc_server:
   host: 0.0.0.0
   port: 3002
@@ -10,14 +10,14 @@ db:
   port: 5432
   user: admin
   password: admin
-  db_name: user_go_test
+  db_name: user
   table_prefix: user
 ro_db:
   host: postgres
   port: 5432
   user: admin
   password: admin
-  db_name: user_go_test
+  db_name: user
   table_prefix: user
 redis:
   host: redis

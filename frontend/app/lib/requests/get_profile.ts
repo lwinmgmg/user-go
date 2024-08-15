@@ -1,3 +1,7 @@
+"use server";
+
+import logout, { deleteCookieLogout } from "../server_actions/logout";
+
 export type UserProfile = {
     firstName: string,
     lastName?: string,
@@ -5,7 +9,7 @@ export type UserProfile = {
     imageUrl?: string,
     userCode: string,
 };
-export default async function getProfile(accessToken: string): Promise<UserProfile>{
+export default async function getProfile(userCode: string, accessToken: string): Promise<UserProfile>{
     const headers = new Headers();
     headers.append("Authorization", `Bearer ${accessToken}`)
     const resp = await fetch(`${process.env.USER_BACKEND}/user/api/v1/user/profile`, {
@@ -21,6 +25,8 @@ export default async function getProfile(accessToken: string): Promise<UserProfi
             imageUrl: data.image_url,
             userCode: data.user_id
         }
+    }else if (resp.status === 401){
+        deleteCookieLogout(userCode);
     }
     throw new Error(`status : ${resp.status}`)
 }

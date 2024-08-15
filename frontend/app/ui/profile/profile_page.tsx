@@ -9,6 +9,7 @@ import ProfileDetail from "./profile_detail";
 import { Suspense } from "react";
 import BackToAccounts from "../components/back_to_accounts";
 import ProfileSection from "./profile_section";
+import { redirect } from "next/navigation";
 
 export default async function ProfilePage({
     userCode,
@@ -17,19 +18,23 @@ export default async function ProfilePage({
     userCode: string,
     accessToken: string
 }) {
-    const data = await getProfileDetail(accessToken);
-    return (
-        <section className="flex flex-col justify-center items-center my-auto h-full">
-            <div className="container border rounded-lg w-full max-w-md flex flex-col overflow-hidden pb-5">
-                <ProfilePicture />
-                <ProfileName firstName={data.firstName} lastName={data.lastName} />
-                <ProfileSection profileDetail={data} />
-                <div className="px-5 flex flex-col">
-                    <Suspense>
-                        <BackToAccounts />
-                    </Suspense>
+    try{
+        const data = await getProfileDetail(userCode, accessToken);
+        return (
+            <section className="flex flex-col justify-center items-center my-auto h-full">
+                <div className="container border rounded-lg w-full max-w-md flex flex-col overflow-hidden pb-5">
+                    <ProfilePicture />
+                    <ProfileName firstName={data.firstName} lastName={data.lastName} />
+                    <ProfileSection profileDetail={data} />
+                    <div className="px-5 flex flex-col">
+                        <Suspense>
+                            <BackToAccounts />
+                        </Suspense>
+                    </div>
                 </div>
-            </div>
-        </section>
-    );
+            </section>
+        );
+    }catch(err){
+        redirect("/accounts")
+    }
 }
