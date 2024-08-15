@@ -1,11 +1,10 @@
-import LoginForm from "@/app/ui/login/LoginForm";
+import LoginForm from "@/app/ui/login/login_form";
+import { Suspense } from "react";
 
-export default function Login({searchParams}:{
-    searchParams: any
-}){
+export default function Login(){
     return (
-        <>
-        <LoginForm searchParams={searchParams} />
-        </>
+        <Suspense>
+            <LoginForm />
+        </Suspense>
     );
 }

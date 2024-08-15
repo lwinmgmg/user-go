@@ -16,7 +16,7 @@ var (
 )
 
 func (ctrl *Controller) PhoneConfirm(userCode string) (loginTkn LoginToken, err error) {
-	loginTkn.SendOtpType = SOtpPhone
+	loginTkn.SendOtpType = SOtpPhoneConfirm
 	loginTkn.TokenType = OTP_TKN
 	user := models.User{}
 	if _, err = user.GetPartnerByCode(userCode, ctrl.RoDb); err != nil {

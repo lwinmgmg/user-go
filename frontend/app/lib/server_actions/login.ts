@@ -8,7 +8,7 @@ const schema = z.object({
     password: z.string().min(1, "Password is required")
 })
 
-export default async function loginAction(preState: any, formData:FormData): Promise<{
+export default async function loginAction(preState: any, formData: FormData): Promise<{
     message?: string,
     response?: LoginResponse,
     success: boolean
@@ -17,29 +17,29 @@ export default async function loginAction(preState: any, formData:FormData): Pro
         username: formData.get("username"),
         password: formData.get("password"),
     })
-    if (data.success){
+    if (data.success) {
         const resp = await fetch(`${process.env.USER_BACKEND}/user/api/v1/func/user/login`, {
             method: "POST",
             body: formData
         });
-        if (resp.status !== 200){
+        if (resp.status !== 200) {
             preState["message"] = "Failed to login.";
             preState["success"] = false;
-        }else{
+        } else {
             const respData: LoginResponse = await resp.json();
             preState["message"] = "Successfully logged in.";
             preState["success"] = true;
             preState["response"] = respData
-            if (respData.token_type == "Otp"){
+            if (respData.token_type == "Otp") {
                 setServerOtpCookie(respData);
-            }else if (respData.token_type == "Bearer"){
+            } else if (respData.token_type == "Bearer") {
                 setServerAuthCookie(respData.user_id, respData.access_token);
             }
         }
-    }else if (data.error){
+    } else if (data.error) {
         preState["success"] = false;
         const messages: Array<{ message: string }> = JSON.parse(data.error.message);
-        preState["message"] = messages.map(mesg=>mesg.message).join(", ");
+        preState["message"] = messages.map(mesg => mesg.message).join(", ");
     }
     return preState
 }

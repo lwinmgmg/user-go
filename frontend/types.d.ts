@@ -4,6 +4,16 @@ type LoginResponse = {
     user_id: string,
     sotp_type?: string
 }
+
+interface LoginRespOtp extends LoginResponse{
+    image?: string,
+    key?: string
+}
+
 interface Dictionary<T> {
     [Key: string]: T;
+}
+
+interface AnyDict<T1, T2> {
+    [key: T1]: T2;
 }

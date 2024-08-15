@@ -1,5 +1,5 @@
 import { OTP_COOKIE } from "./enums";
-import { getServerCookie, setServerCookie } from "./server_cookie";
+import { deleteServerCookie, getServerCookie, setServerCookie } from "./server_cookie";
 
 export function setServerOtpCookie(data: LoginResponse){
     setServerCookie(OTP_COOKIE, JSON.stringify(data));
@@ -11,4 +11,8 @@ export function getServerOtpCookie(): LoginResponse | undefined{
         return JSON.parse(otpStr) as LoginResponse
     }
     return undefined
+}
+
+export function deleteServerOtpCookie(){
+    deleteServerCookie(OTP_COOKIE);
 }

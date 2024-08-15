@@ -13,7 +13,7 @@ var (
 )
 
 func (ctrl *Controller) EmailConfirm(userCode string) (loginTkn LoginToken, err error) {
-	loginTkn.SendOtpType = SOtpEmail
+	loginTkn.SendOtpType = SOtpEmailConfirm
 	loginTkn.TokenType = OTP_TKN
 	user := models.User{}
 	if _, err = user.GetPartnerByCode(userCode, ctrl.RoDb); err != nil {

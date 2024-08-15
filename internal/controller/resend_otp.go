@@ -13,10 +13,12 @@ import (
 type SendOtpType string
 
 const (
-	SOtpPhone  SendOtpType = "phone"
-	SOtpEmail  SendOtpType = "email"
-	SOtpAuth   SendOtpType = "auth"
-	SOtpChPass SendOtpType = "ch_pass"
+	SOtpPhone        SendOtpType = "phone"
+	SOtpPhoneConfirm SendOtpType = "phone_confirm"
+	SOtpEmail        SendOtpType = "email"
+	SOtpEmailConfirm SendOtpType = "email_confirm"
+	SOtpAuth         SendOtpType = "auth"
+	SOtpChPass       SendOtpType = "ch_pass"
 )
 
 var (
@@ -63,11 +65,11 @@ func (ctrl *Controller) ResendOtp(data *ResendOtpRequest) (rsendOtp ResendOtpRes
 	if _, err = user.GetPartnerByCode(otpValue.Code, ctrl.RoDb); err != nil {
 		return
 	}
-	if data.SendOtpType == SOtpEmail && user.Partner.IsEmailConfirmed {
+	if (data.SendOtpType == SOtpEmail && user.Partner.IsEmailConfirmed) || data.SendOtpType == SOtpEmailConfirm {
 		err = ctrl.LoginMail.Send(passCode, []string{user.Partner.Email})
 		rsendOtp.Message = fmt.Sprintf("Otp send to the email [%v...]", user.Partner.Email[:4])
 		return
-	} else if data.SendOtpType == SOtpPhone && user.Partner.IsPhoneConfirmed {
+	} else if (data.SendOtpType == SOtpPhone && user.Partner.IsPhoneConfirmed) || data.SendOtpType == SOtpPhoneConfirm {
 		err = ctrl.PhoneService.Send(passCode, user.Partner.Phone)
 		rsendOtp.Message = fmt.Sprintf("Otp send to the phone [%v...]", user.Partner.Phone[:4])
 		return
