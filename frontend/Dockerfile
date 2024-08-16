@@ -1,7 +1,9 @@
-FROM "node:20-bookworm"
+FROM "node:20-alpine3.19"
+
+RUN apk update && apk upgrade && apk add bash
 
 ENV WORK_DIR="/frontend"
-# ENV NODE_ENV=production
+ENV NODE_ENV=production
 
 WORKDIR $WORK_DIR
 
