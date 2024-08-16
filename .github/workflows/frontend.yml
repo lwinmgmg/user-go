@@ -22,5 +22,6 @@ jobs:
           uses: docker/build-push-action@v5
           with:
             file: frontend/Dockerfile
+            context: ./frontend
             push: true
-            tags: ${{ secrets.DOCKERHUB_USERNAME }}/odoo-mrs:${{ github.ref_name }}
+            tags: ${{ secrets.DOCKERHUB_USERNAME }}/user-go-ui:${{ github.ref_name }}
