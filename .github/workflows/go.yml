@@ -31,6 +31,7 @@ jobs:
     - name: Test
       run: |
         export USER_SETTING_PATH=$(pwd)/settings.yaml.example
+        sed -i -e "s/db_name: user/db_name: user_go_test/g" settings.yaml.example
         go run cmd/migrate-database/main.go
         go test -v ./...
 
