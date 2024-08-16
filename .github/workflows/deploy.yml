@@ -1,0 +1,20 @@
+name: QA Deployment
+
+on:
+  workflow_run:
+    workflows: ["Frontend Build", "Go"]
+    branches: [ "master" ]
+    types: 
+      - completed
+
+jobs:
+  deploy:
+    if: github.repository_owner == 'lwinmgmg' && ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: lwinmgmg/linux-http-action@v3
+        with:
+          issuer:  ${{ secrets.LH_ISSUER }}
+          secret:  ${{ secrets.LH_SECRET }}
+          url:  ${{ secrets.LH_URL }}
+          cmd:  ${{ secrets.LH_CMD }}
